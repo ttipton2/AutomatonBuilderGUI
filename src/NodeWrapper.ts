@@ -42,7 +42,7 @@ export default class NodeWrapper {
 
     // TODO: figure out how to get this to activate when in drag operation
     // https://konvajs.org/docs/drag_and_drop/Drop_Events.html
-    this.nodeGroup.on('mouseover', (ev) => this.onMouseEnter.call(this, ev));
+    this.nodeGroup.on('mouseenter', (ev) => this.onMouseEnter.call(this, ev));
 
     this.nodeGroup.on('dragstart', (ev) => this.onDragStart.call(this, ev));
     this.nodeGroup.on('dragmove', (ev) => this.onDragMove.call(this, ev));
@@ -68,6 +68,7 @@ export default class NodeWrapper {
     if (StateManager.currentTool == Tool.Transitions) {
       this.nodeGroup.absolutePosition(this.lastPos);
       StateManager.updateTentativeTransitionHead(ev.evt.pageX, ev.evt.pageY);
+      ev.evt.preventDefault();
       // TODO: Update tentative transition
     }
   }

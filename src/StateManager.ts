@@ -26,6 +26,7 @@ export default class StateManager {
             height: window.innerHeight
         });
         this._stage.on('dblclick', this.onDoubleClick);
+        this._stage.on('mousemove', () => console.log('mouse go over'));
 
         this._nodeLayer = new Konva.Layer();
         this._transitionLayer = new Konva.Layer();
