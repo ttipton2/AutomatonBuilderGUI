@@ -4,7 +4,8 @@
   "description": "",
   "private": true,
   "scripts": {
-    "build": "webpack && npm run build:cp-public",
+    "build": "webpack && npm run build:tailwind && npm run build:cp-public",
+    "build:tailwind": "npx tailwindcss -i ./public/input.css -o ./dist/output.css",
     "build:cp-public": "cp ./public/** ./dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "tailwindcss": "^3.3.3",
     "ts-loader": "^9.4.4",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",
