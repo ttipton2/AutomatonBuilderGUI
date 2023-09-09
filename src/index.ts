@@ -14,8 +14,3 @@ const transitionsButton = <HTMLButtonElement> document.getElementById("transitio
 if (transitionsButton?.addEventListener) {
   transitionsButton.addEventListener('click', () => StateManager.currentTool = Tool.Transitions, false);
 }
-
-const acceptButton = <HTMLButtonElement> document.getElementById("accept-button");
-if (acceptButton?.addEventListener) {
-  acceptButton.addEventListener('click', () => StateManager.currentTool = Tool.SetAccept, false);
-}

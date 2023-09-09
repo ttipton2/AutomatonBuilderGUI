@@ -77,12 +77,21 @@ export default class NodeWrapper {
   public enableNewConnectionGlow() {
     this.nodeBackground.shadowColor('#2FDFFB');
     this.nodeBackground.shadowOffset({x: 0, y: 0});
+    this.nodeBackground.shadowOpacity(1);
     this.nodeBackground.shadowBlur(10);
     this.nodeBackground.shadowEnabled(true);
   }
 
-  public disableNewConnectionGlow() {
+  public disableShadowEffects() {
     this.nodeBackground.shadowEnabled(false);
+  }
+
+  public enableDragDropShadow() {
+    this.nodeBackground.shadowColor('#000000');
+    this.nodeBackground.shadowOffset({x: 0, y: 3});
+    this.nodeBackground.shadowOpacity(0.2);
+    this.nodeBackground.shadowBlur(10);
+    this.nodeBackground.shadowEnabled(true);
   }
 
   public onMouseEnter(ev: Konva.KonvaEventObject<MouseEvent>) {
@@ -96,14 +105,17 @@ export default class NodeWrapper {
     if (StateManager.currentTool === Tool.Transitions) {
       if (StateManager.tentativeTransitionInProgress && StateManager.tentativeTransitionTarget === this) {
         StateManager.tentativeTransitionTarget = null;
-        this.disableNewConnectionGlow();
+        this.disableShadowEffects();
       }
     }
   }
 
   public onDragStart(ev: Konva.KonvaEventObject<MouseEvent>) {
     this.lastPos = this.nodeGroup.absolutePosition();
-    if (StateManager.currentTool === Tool.Transitions) {
+    if (StateManager.currentTool === Tool.States) {
+      this.enableDragDropShadow();
+    }
+    else if (StateManager.currentTool === Tool.Transitions) {
       StateManager.startTentativeTransition(this);
     }
   }
@@ -116,7 +128,10 @@ export default class NodeWrapper {
   }
 
   public onDragEnd() {
-    if (StateManager.currentTool === Tool.Transitions) {
+    if (StateManager.currentTool == Tool.States) {
+      this.disableShadowEffects();
+    }
+    else if (StateManager.currentTool === Tool.Transitions) {
       StateManager.endTentativeTransition();
     }
   }

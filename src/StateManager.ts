@@ -181,8 +181,8 @@ export default class StateManager {
             StateManager._transitionLayer.draw();
         }
 
-        StateManager._tentativeTransitionSource?.disableNewConnectionGlow();
-        StateManager._tentativeTransitionTarget?.disableNewConnectionGlow();
+        StateManager._tentativeTransitionSource?.disableShadowEffects();
+        StateManager._tentativeTransitionTarget?.disableShadowEffects();
 
         StateManager._tentativeTransitionSource = null;
         StateManager._tentativeTransitionTarget = null;
