@@ -1,4 +1,5 @@
 export enum Tool {
     States,
-    Transitions
+    Transitions,
+    SetAccept
   }
