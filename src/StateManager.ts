@@ -2,11 +2,14 @@ import NodeWrapper from "./NodeWrapper";
 import { Tool } from "./Tool";
 import Konva from "konva";
 import TransitionWrapper from "./TransitionWrapper";
+import SelectableObject from "./SelectableObject";
 
 export default class StateManager {
     private static _startNode: NodeWrapper | null = null;
     private static _nodeWrappers: Array<NodeWrapper> = [];
     private static _transitionWrappers: Array<TransitionWrapper> = [];
+
+    private static _selectedObjects: Array<SelectableObject> = [];
 
     private static _tentativeTransitionSource: NodeWrapper | null = null;
     private static _tentativeTransitionTarget: NodeWrapper | null = null;
@@ -34,7 +37,8 @@ export default class StateManager {
             width: window.innerWidth,
             height: window.innerHeight
         });
-        this._stage.on('dblclick', this.onDoubleClick);
+        this._stage.on('dblclick', (ev) => StateManager.onDoubleClick.call(this, ev));
+        this._stage.on('click', (ev) => StateManager.onClick.call(this, ev));
 
         this._nodeLayer = new Konva.Layer();
         this._transitionLayer = new Konva.Layer();
@@ -66,6 +70,7 @@ export default class StateManager {
             lineJoin: 'round',
             pointerLength: 10,
             pointerWidth: 10,
+            visible: false
         });
         this._transitionLayer.add(this._startStateLine);
 
@@ -82,6 +87,15 @@ export default class StateManager {
 
     public static set currentTool(tool: Tool) {
         StateManager._currentTool = tool;
+    }
+
+    private static onClick(evt: Konva.KonvaEventObject<MouseEvent>) {
+        console.log('click heard by stage');
+        let thingUnderMouse = StateManager._stage.getIntersection(StateManager._stage.getPointerPosition());
+        if (!thingUnderMouse) {
+            StateManager.deselectAllObjects();
+        }
+        // TODO: check if no intersections - if not, then deselect all
     }
 
     private static onDoubleClick(evt: Konva.KonvaEventObject<MouseEvent>) {
@@ -108,14 +122,14 @@ export default class StateManager {
     }
 
     public static makeStateIntoStartState(node: NodeWrapper) {
-        console.log('make', node, 'into start state');
         if (StateManager._startNode) {
-            StateManager._startNode.nodeGroup.off('dragmove.startstate');
+            StateManager._startNode.nodeGroup.off('move.startstate');
         }
         StateManager._startNode = node;
 
-        node.nodeGroup.on('dragmove.startstate', (ev) => StateManager.updateStartNodePosition());
+        node.nodeGroup.on('move.startstate', (ev) => StateManager.updateStartNodePosition());
         StateManager.updateStartNodePosition();
+        StateManager._startStateLine.visible(true);
     }
 
     private static updateStartNodePosition() {
@@ -123,14 +137,18 @@ export default class StateManager {
     }
 
     private static onKeyDown(ev: KeyboardEvent) {
-        if (ev.code === "KeyS") {
+        if (ev.code === "KeyA") {
             StateManager.currentTool = Tool.States;
         }
         else if (ev.code === "KeyT") {
             StateManager.currentTool = Tool.Transitions;
         }
-        else if (ev.code === "KeyA") {
-            StateManager.currentTool = Tool.SetAccept;
+        else if (ev.code === "KeyS") {
+            StateManager.currentTool = Tool.Select;
+        }
+
+        else if (ev.code === "Backspace" || ev.code === "Delete") {
+            StateManager.deleteAllSelectedObjects();
         }
     }
 
@@ -174,7 +192,6 @@ export default class StateManager {
 
     public static endTentativeTransition() {
         if (StateManager._tentativeTransitionSource !== null && StateManager.tentativeTransitionTarget !== null) {
-            console.log("Create a new transition wrapper!");
             const newTransitionWrapper = new TransitionWrapper(StateManager._tentativeTransitionSource, StateManager._tentativeTransitionTarget);
             StateManager._transitionWrappers.push(newTransitionWrapper);
             StateManager._transitionLayer.add(newTransitionWrapper.konvaGroup);
@@ -201,4 +218,46 @@ export default class StateManager {
         StateManager._tentativeTransitionTarget = newTarget;
     }
 
+    public static get selectedObjects() {
+        return [...StateManager._selectedObjects];
+    }
+
+    public static selectObject(obj: SelectableObject) {
+        StateManager._selectedObjects.push(obj);
+        obj.select();
+    }
+
+    public static deselectAllObjects() {
+        StateManager._selectedObjects.forEach((obj) => obj.deselect());
+        StateManager._selectedObjects.length = 0;
+    }
+
+    public static deleteAllSelectedObjects() {
+        // Find all transitions dependent on selected nodes
+        const nodesToRemove = StateManager._nodeWrappers.filter((i) => StateManager._selectedObjects.includes(i));
+        const transitionsDependentOnDeletedNodes: Array<TransitionWrapper> = [];
+        nodesToRemove.forEach((node) => {
+            StateManager._transitionWrappers.forEach((trans) => {
+                if (trans.involvesNode(node) && !transitionsDependentOnDeletedNodes.includes(trans)) {
+                    transitionsDependentOnDeletedNodes.push(trans);
+                }
+            });
+        });
+
+        // Keep transitions that aren't in the selected objects, AND aren't dependent on selected objects
+        StateManager._transitionWrappers = StateManager._transitionWrappers.filter((i) => StateManager._selectedObjects.includes(i) && !transitionsDependentOnDeletedNodes.includes(i));
+
+        // Next, delete all selected nodes
+        StateManager._nodeWrappers = StateManager._nodeWrappers.filter((i) => StateManager._selectedObjects.includes(i));
+
+        StateManager._selectedObjects.forEach((obj) => obj.deleteKonvaObjects());
+        transitionsDependentOnDeletedNodes.forEach((obj) => obj.deleteKonvaObjects());
+
+        if (nodesToRemove.includes(StateManager._startNode)) {
+            StateManager._startNode = null;
+            StateManager._startStateLine.visible(false);
+        }
+
+        StateManager._selectedObjects.length = 0;
+    }
 }

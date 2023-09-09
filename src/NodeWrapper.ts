@@ -2,9 +2,17 @@ import Konva from 'konva';
 import StateManager from './StateManager';
 import { Tool } from './Tool';
 import { Vector2d } from 'konva/lib/types';
+import SelectableObject from './SelectableObject';
+import { Node, NodeConfig } from 'konva/lib/Node';
 
-export default class NodeWrapper {
+export default class NodeWrapper extends SelectableObject {
   public static readonly NodeRadius = 30;
+  
+  public static readonly SelectedStrokeColor = '#018ED5';
+  public static readonly SelectedStrokeWidth = 4;
+
+  public static readonly StrokeColor = 'black';
+  public static readonly StrokeWidth = 2;
 
   private nodeBackground: Konva.Circle;
   private nodeAcceptCircle: Konva.Circle;
@@ -17,6 +25,7 @@ export default class NodeWrapper {
   private isAcceptNode: boolean = false;
 
   constructor(x: number, y: number) {
+    super();
     this.nodeGroup = new Konva.Group({ x: x, y: y });
 
     // create our shape
@@ -25,8 +34,8 @@ export default class NodeWrapper {
       y: 0,
       radius: NodeWrapper.NodeRadius,
       fill: 'white',
-      stroke: 'black',
-      strokeWidth: 2
+      stroke: NodeWrapper.StrokeColor,
+      strokeWidth: NodeWrapper.StrokeWidth
     });
 
     this.nodeAcceptCircle = new Konva.Circle({
@@ -69,6 +78,30 @@ export default class NodeWrapper {
   }
 
   public onClick(ev: Konva.KonvaEventObject<MouseEvent>) {
+    if (StateManager.currentTool === Tool.Select) {
+      // If shift isn't being held, then clear all previous selection
+      if (!ev.evt.shiftKey) {
+        StateManager.deselectAllObjects();
+      }
+      StateManager.selectObject(this);
+    }
+  }
+
+  public select() {
+    this.nodeBackground.stroke(NodeWrapper.SelectedStrokeColor);
+    this.nodeBackground.strokeWidth(NodeWrapper.SelectedStrokeWidth);
+  }
+
+  public deselect() {
+    this.nodeBackground.stroke(NodeWrapper.StrokeColor);
+    this.nodeBackground.strokeWidth(NodeWrapper.StrokeWidth);
+  }
+
+  public deleteKonvaObjects() {
+    this.nodeGroup.destroy();
+  }
+
+  public toggleAcceptNode() {
     this.isAcceptNode = !this.isAcceptNode;
     this.nodeAcceptCircle.visible(this.isAcceptNode);
   }
@@ -112,11 +145,25 @@ export default class NodeWrapper {
 
   public onDragStart(ev: Konva.KonvaEventObject<MouseEvent>) {
     this.lastPos = this.nodeGroup.absolutePosition();
+
+    // No dragging when in state mode!
     if (StateManager.currentTool === Tool.States) {
-      this.enableDragDropShadow();
+      this.nodeGroup.stopDrag();
     }
     else if (StateManager.currentTool === Tool.Transitions) {
       StateManager.startTentativeTransition(this);
+    }
+    else if (StateManager.currentTool === Tool.Select) {
+      if (!ev.evt.shiftKey && StateManager.selectedObjects.length === 1) {
+        StateManager.deselectAllObjects();
+      }
+      StateManager.selectObject(this);
+
+      StateManager.selectedObjects.forEach((obj) => {
+        if (obj instanceof NodeWrapper) {
+          obj.enableDragDropShadow();
+        }
+      });
     }
   }
 
@@ -125,14 +172,38 @@ export default class NodeWrapper {
       this.nodeGroup.absolutePosition(this.lastPos);
       StateManager.updateTentativeTransitionHead(ev.evt.pageX, ev.evt.pageY);
     }
+    else if (StateManager.currentTool === Tool.Select) {
+      this.konvaObject().fire('move', ev);
+
+      // Move all selected objects along with this one!
+      const allOtherSelected = StateManager.selectedObjects.filter((i) => i !== this);
+      allOtherSelected.forEach((obj) => {
+        obj.konvaObject().absolutePosition({
+          x: obj.konvaObject().absolutePosition().x + ev.evt.movementX,
+          y: obj.konvaObject().absolutePosition().y + ev.evt.movementY
+        });
+        obj.konvaObject().fire('move', ev);
+      });
+    }
   }
 
   public onDragEnd() {
     if (StateManager.currentTool == Tool.States) {
-      this.disableShadowEffects();
+      
     }
     else if (StateManager.currentTool === Tool.Transitions) {
       StateManager.endTentativeTransition();
     }
+    else if (StateManager.currentTool === Tool.Select) {
+      StateManager.selectedObjects.forEach((obj) => {
+        if (obj instanceof NodeWrapper) {
+          obj.disableShadowEffects();
+        }
+      });
+    }
+  }
+  
+  public konvaObject(): Konva.Node {
+    return this.nodeGroup;
   }
 }

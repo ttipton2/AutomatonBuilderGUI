@@ -1,7 +1,8 @@
 import Konva from "konva";
 import NodeWrapper from "./NodeWrapper";
+import SelectableObject from "./SelectableObject";
 
-export default class TransitionWrapper {
+export default class TransitionWrapper extends SelectableObject {
     public static readonly ExtraTransitionArrowPadding = 5;
 
     private arrowObject: Konva.Arrow;
@@ -11,6 +12,7 @@ export default class TransitionWrapper {
     private destNode: NodeWrapper;
 
     constructor(sourceNode: NodeWrapper, destNode: NodeWrapper) {
+        super();
         this.sourceNode = sourceNode;
         this.destNode = destNode;
 
@@ -32,8 +34,8 @@ export default class TransitionWrapper {
 
         this.updatePoints();
 
-        this.sourceNode.nodeGroup.on('dragmove.transition', (ev) => this.updatePoints.call(this));
-        this.destNode.nodeGroup.on('dragmove.transition', (ev) => this.updatePoints.call(this));
+        this.sourceNode.nodeGroup.on('move.transition', (ev) => this.updatePoints.call(this));
+        this.destNode.nodeGroup.on('move.transition', (ev) => this.updatePoints.call(this));
     }
 
     public updatePoints() {
@@ -55,5 +57,25 @@ export default class TransitionWrapper {
             dstPos.x - xUnitTowardsSrc,
             dstPos.y - yUnitTowardsSrc
         ]);
+    }
+
+    public involvesNode(node: NodeWrapper): boolean {
+        return this.sourceNode === node || this.destNode === node;
+    }
+
+    public select(): void {
+        
+    }
+
+    public deselect(): void {
+        
+    }
+
+    public konvaObject(): Konva.Node {    
+        return this.konvaGroup;
+    }
+
+    public deleteKonvaObjects(): void {
+        this.konvaGroup.destroy();
     }
 }
