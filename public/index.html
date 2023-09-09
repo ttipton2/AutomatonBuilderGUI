@@ -7,11 +7,18 @@
     </head>
     <body>
         <div class="z-0 absolute left-0 top-0" id="graphics-container"></div>
-        <div class="z-50 bg-gray-300/50 w-fit h-screen p-2 m-5 rounded-lg backdrop-blur-xl shadow-xl">
-            <div class="flex flex-col">
-                <button id="states-button" type="button" class="rounded-full p-2 m-1 mx-2 block bg-sky-500 text-white">Add States (A)</button>
-                <button id="transitions-button" type="button" class="rounded-full p-2 m-1 mx-2 block bg-white text-black">Transitions (T)</button>
-                <button id="select-button" type="button" class="rounded-full p-2 m-1 mx-2 block bg-white text-black">Select (S)</button>
+        <div class="flex flex-row">
+            <div class="z-50 bg-gray-300/50 w-fit h-screen p-2 m-5 rounded-lg backdrop-blur-xl shadow-xl resize-x">
+                <div class="flex flex-col">
+                    Details about selection go here
+                </div>
+            </div>
+            <div class="z-50 bg-gray-300/50 w-fit h-screen p-2 m-5 rounded-lg backdrop-blur-xl shadow-xl resize-x">
+                <div class="flex flex-col">
+                    <button id="states-button" type="button" class="rounded-full p-2 m-1 mx-2 block bg-sky-500 text-white">Add States (A)</button>
+                    <button id="transitions-button" type="button" class="rounded-full p-2 m-1 mx-2 block bg-white text-black">Transitions (T)</button>
+                    <button id="select-button" type="button" class="rounded-full p-2 m-1 mx-2 block bg-white text-black">Select (S)</button>
+                </div>
             </div>
         </div>
         <script src="bundle.js"></script>
