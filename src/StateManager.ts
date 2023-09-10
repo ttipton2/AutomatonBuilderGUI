@@ -89,12 +89,10 @@ export default class StateManager {
     }
 
     private static onClick(evt: Konva.KonvaEventObject<MouseEvent>) {
-        console.log('click heard by stage');
         let thingUnderMouse = StateManager._stage.getIntersection(StateManager._stage.getPointerPosition());
         if (!thingUnderMouse) {
             StateManager.deselectAllObjects();
         }
-        // TODO: check if no intersections - if not, then deselect all
     }
 
     private static onDoubleClick(evt: Konva.KonvaEventObject<MouseEvent>) {

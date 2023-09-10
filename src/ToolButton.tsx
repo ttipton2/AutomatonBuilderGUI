@@ -1,6 +1,6 @@
 import { Tool } from "./Tool"
 
-export interface ToolButtonProps {
+interface ToolButtonProps {
     tool: Tool
     currentTool: Tool
     setCurrentTool: React.Dispatch<React.SetStateAction<Tool>>
