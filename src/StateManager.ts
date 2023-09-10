@@ -78,7 +78,6 @@ export default class StateManager {
         this._stage.add(this._nodeLayer);
 
         addEventListener('keydown', this.onKeyDown);
-        addEventListener('keyup', this.onKeyUp);
     }
 
     public static get currentTool() {
@@ -137,23 +136,9 @@ export default class StateManager {
     }
 
     private static onKeyDown(ev: KeyboardEvent) {
-        if (ev.code === "KeyA") {
-            StateManager.currentTool = Tool.States;
-        }
-        else if (ev.code === "KeyT") {
-            StateManager.currentTool = Tool.Transitions;
-        }
-        else if (ev.code === "KeyS") {
-            StateManager.currentTool = Tool.Select;
-        }
-
-        else if (ev.code === "Backspace" || ev.code === "Delete") {
+        if (ev.code === "Backspace" || ev.code === "Delete") {
             StateManager.deleteAllSelectedObjects();
         }
-    }
-
-    private static onKeyUp(ev: KeyboardEvent) {
-
     }
 
     public static startTentativeTransition(sourceNode: NodeWrapper) {
