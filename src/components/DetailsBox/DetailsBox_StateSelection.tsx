@@ -1,30 +1,61 @@
 import { useState, useEffect } from "react";
 import NodeWrapper from "../../NodeWrapper";
 import SelectableObject from "../../SelectableObject";
+import StateManager from "../../StateManager";
 
 interface DetailsBox_StateSelectionProps {
     nodeWrapper: NodeWrapper
+    startNode: NodeWrapper
+    setStartNode: React.Dispatch<React.SetStateAction<NodeWrapper>>
 }
+
+interface SetStartStateButtonProps {
+    nodeWrapper: NodeWrapper
+    startNode: NodeWrapper
+    setStartNode: React.Dispatch<React.SetStateAction<NodeWrapper>>
+}
+
+function SetStartStateButton(props: SetStartStateButtonProps) {
+    let classes = 'rounded-full p-2 m-1 mx-2 block ';
+    if (StateManager.startNode === props.nodeWrapper) {
+        return (<button
+        className={classes + 'bg-slate-400 text-gray-700'}
+        disabled={true}>
+            Current Start State
+        </button>)
+    }
+    else {
+        return <button
+            className={classes + 'bg-emerald-500 text-white'}
+            onClick={e => props.setStartNode(props.nodeWrapper)}>
+            Set Start State
+        </button>
+    }
+
+}
+
 
 export default function DetailsBox_StateSelection(props: DetailsBox_StateSelectionProps) {
     const nw = props.nodeWrapper;
-    const [nodeLabelText, setLabelText] = useState(props.nodeWrapper.labelText);
-    const [isAcceptNode, setIsAcceptNode] = useState(props.nodeWrapper.isAcceptNode);
+    const [nodeLabelText, setLabelText] = useState(nw.labelText);
+    const [isAcceptNode, setIsAcceptNode] = useState(nw.isAcceptNode);
 
     useEffect(() => {
-        props.nodeWrapper.labelText = nodeLabelText;
+        nw.labelText = nodeLabelText;
     }, [nodeLabelText]);
 
     useEffect(() => {
-        props.nodeWrapper.isAcceptNode = isAcceptNode;
+        nw.isAcceptNode = isAcceptNode;
     }, [isAcceptNode]);
 
     return (
-        <div>
+        <div className="flex flex-col">
             <input className="text-inherit/40 font-medium text-lg" type="text" placeholder="State name" value={nodeLabelText} onChange={e => setLabelText(e.target.value)}></input>
-            {/* <div className="text-inherit/40 bg-transparent text-sm">Start State</div> */}
-            <input type="checkbox" id="is-accept-state" name="is-accept-state" checked={isAcceptNode} onChange={e => setIsAcceptNode(e.target.checked)}></input>
-            <label htmlFor="is-accept-state">Accept State</label>
+            <SetStartStateButton nodeWrapper={nw} startNode={props.startNode} setStartNode={props.setStartNode} />
+            <div>
+                <input type="checkbox" id="is-accept-state" name="is-accept-state" checked={isAcceptNode} onChange={e => setIsAcceptNode(e.target.checked)}></input>
+                <label htmlFor="is-accept-state">Accept State</label>
+            </div>
         </div>
     );
 }

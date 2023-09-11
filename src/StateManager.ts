@@ -5,7 +5,9 @@ import TransitionWrapper from "./TransitionWrapper";
 import SelectableObject from "./SelectableObject";
 
 export default class StateManager {
+    public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
     private static _startNode: NodeWrapper | null = null;
+
     private static _nodeWrappers: Array<NodeWrapper> = [];
     private static _transitionWrappers: Array<TransitionWrapper> = [];
 
@@ -22,7 +24,7 @@ export default class StateManager {
     private static _nodeLayer: Konva.Layer | null = null;
     private static _transitionLayer: Konva.Layer | null = null;
 
-    public static setSelectedObjects: React.Dispatch<React.SetStateAction<SelectableObject[]>> | null = null; 
+    public static setSelectedObjects: React.Dispatch<React.SetStateAction<SelectableObject[]>> | null = null;
 
     private constructor() {
     }
@@ -116,19 +118,26 @@ export default class StateManager {
         StateManager._nodeLayer.add(newStateWrapper.nodeGroup);
 
         if (StateManager._startNode === null) {
-            StateManager.makeStateIntoStartState(newStateWrapper);
+            StateManager.startNode = newStateWrapper;
         }
     }
 
-    public static makeStateIntoStartState(node: NodeWrapper) {
+    public static set startNode(node: NodeWrapper | null) {
         if (StateManager._startNode) {
             StateManager._startNode.nodeGroup.off('move.startstate');
         }
         StateManager._startNode = node;
 
-        node.nodeGroup.on('move.startstate', (ev) => StateManager.updateStartNodePosition());
-        StateManager.updateStartNodePosition();
-        StateManager._startStateLine.visible(true);
+        if (node) {
+            node.nodeGroup.on('move.startstate', (ev) => StateManager.updateStartNodePosition());
+            StateManager.updateStartNodePosition();
+            StateManager._startStateLine.visible(true);
+        }
+        else {
+            StateManager._startStateLine.visible(false);
+        }
+
+
     }
 
     private static updateStartNodePosition() {
@@ -159,14 +168,14 @@ export default class StateManager {
         // There's a node being targeted, so let's find the point the arrow
         // should point to!
         let dstPos = StateManager.tentativeTransitionTarget.nodeGroup.absolutePosition();
-        
+
         let xDestRelativeToSrc = dstPos.x - srcPos.x;
         let yDestRelativeToSrc = dstPos.y - srcPos.y;
 
         let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
 
         let newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
-        let xUnitTowardsSrc =  xDestRelativeToSrc / magnitude * newMag;
+        let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
         let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
 
         // Ok, now we have a vector relative to the destination.
@@ -249,8 +258,7 @@ export default class StateManager {
         transitionsDependentOnDeletedNodes.forEach((obj) => obj.deleteKonvaObjects());
 
         if (nodesToRemove.includes(StateManager._startNode)) {
-            StateManager._startNode = null;
-            StateManager._startStateLine.visible(false);
+            StateManager.startNode = null;
         }
 
         StateManager.setSelectedObjects([]);

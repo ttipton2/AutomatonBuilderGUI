@@ -6,6 +6,8 @@ import DetailsBox_StateSelection from "./DetailsBox_StateSelection";
 
 interface DetailsBoxProps {
     selection: Array<SelectableObject>
+    startNode: NodeWrapper
+    setStartNode: React.Dispatch<React.SetStateAction<NodeWrapper>>
 }
 
 export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProps>) {
@@ -15,8 +17,12 @@ export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProp
     else {
         const nws = (props.selection as Array<NodeWrapper>);
         return (<div className="divide-y divide-solid divide-black">
-            {nws.map((item) => <DetailsBox_StateSelection key={item.creationId} nodeWrapper={item} />)}
+            {nws.map((item) => <DetailsBox_StateSelection
+                key={item.creationId}
+                nodeWrapper={item}
+                startNode={props.startNode}
+                setStartNode={props.setStartNode} />)}
         </div>);
     }
-    
+
 }

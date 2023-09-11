@@ -1,5 +1,5 @@
 import { Tool } from '../Tool';
-import ToolButton from '../ToolButton';
+import ToolButton from './ToolButton';
 
 interface ToolboxProps {
     currentTool: Tool

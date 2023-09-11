@@ -11,6 +11,7 @@ import DetailsBox from './components/DetailsBox/DetailsBox';
 function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
     const [selectedObjects, setSelectedObjects] = useState(new Array<SelectableObject>());
+    const [startNode, setStartNode] = useState(StateManager.startNode);
 
     // Switch current tool when keys pressed
     useEffect(() => {
@@ -35,17 +36,25 @@ function App() {
     useEffect(() => {
         StateManager.selectedObjects = selectedObjects;
     }, [selectedObjects]);
-    
+
+    useEffect(() => {
+        StateManager.startNode = startNode;
+    }, [startNode]);
+
     // Sounds like we may want to do something with refs...
     // First, I guess figure out a placeholder UI for when you have a node selected?
     return (<>
         <NodeView />
         <div className='flex flex-row h-screen'>
             <FloatingPanel heightPolicy='min'>
-                <DetailsBox selection={selectedObjects} />
+                <DetailsBox
+                    selection={selectedObjects}
+                    startNode={startNode}
+                    setStartNode={setStartNode}
+                />
             </FloatingPanel>
             <FloatingPanel heightPolicy='min'>
-                <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool}/>
+                <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
             </FloatingPanel>
         </div>
     </>
