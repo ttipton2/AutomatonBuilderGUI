@@ -24,6 +24,8 @@ export default class NodeWrapper extends SelectableObject {
 
   private isAcceptNode: boolean = false;
 
+  private _labelText: string = "State";
+
   constructor(x: number, y: number) {
     super();
     this.nodeGroup = new Konva.Group({ x: x, y: y });
@@ -55,7 +57,7 @@ export default class NodeWrapper extends SelectableObject {
       height: NodeWrapper.NodeRadius * 2,
       align: 'center',
       verticalAlign: 'middle',
-      text: 'q0',
+      text: this._labelText,
       fontSize: 30,
       fill: 'black',
     });
@@ -205,5 +207,14 @@ export default class NodeWrapper extends SelectableObject {
   
   public konvaObject(): Konva.Node {
     return this.nodeGroup;
+  }
+
+  public get labelText(): string {
+    return this._labelText;
+  }
+
+  public set labelText(value: string) {
+    this._labelText = value;
+    this.nodeLabel.text(this._labelText);
   }
 }

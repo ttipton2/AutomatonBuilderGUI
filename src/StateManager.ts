@@ -22,6 +22,8 @@ export default class StateManager {
     private static _nodeLayer: Konva.Layer | null = null;
     private static _transitionLayer: Konva.Layer | null = null;
 
+    public static setSelectedObjects: React.Dispatch<React.SetStateAction<SelectableObject[]>> | null = null; 
+
     private constructor() {
     }
 
@@ -134,7 +136,7 @@ export default class StateManager {
     }
 
     private static onKeyDown(ev: KeyboardEvent) {
-        if (ev.code === "Backspace" || ev.code === "Delete") {
+        if ((ev.code === "Backspace" || ev.code === "Delete") && ev.ctrlKey) {
             StateManager.deleteAllSelectedObjects();
         }
     }
@@ -201,18 +203,28 @@ export default class StateManager {
         StateManager._tentativeTransitionTarget = newTarget;
     }
 
+    public static set selectedObjects(newArray: Array<SelectableObject>) {
+        StateManager._selectedObjects = newArray;
+    }
+
     public static get selectedObjects() {
         return [...StateManager._selectedObjects];
     }
 
     public static selectObject(obj: SelectableObject) {
-        StateManager._selectedObjects.push(obj);
+        if (StateManager._selectedObjects.includes(obj)) {
+            return;
+        }
+        const currentSelectedObjects = [...StateManager._selectedObjects, obj];
+        StateManager.setSelectedObjects(currentSelectedObjects);
+        StateManager._selectedObjects = currentSelectedObjects;
         obj.select();
     }
 
     public static deselectAllObjects() {
         StateManager._selectedObjects.forEach((obj) => obj.deselect());
-        StateManager._selectedObjects.length = 0;
+        StateManager.setSelectedObjects([]);
+        StateManager._selectedObjects = [];
     }
 
     public static deleteAllSelectedObjects() {
@@ -241,6 +253,7 @@ export default class StateManager {
             StateManager._startStateLine.visible(false);
         }
 
-        StateManager._selectedObjects.length = 0;
+        StateManager.setSelectedObjects([]);
+        StateManager._selectedObjects = [];
     }
 }
