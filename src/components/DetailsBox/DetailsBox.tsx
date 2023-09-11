@@ -15,7 +15,7 @@ export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProp
     else {
         const nws = (props.selection as Array<NodeWrapper>);
         return (<div className="divide-y divide-solid divide-black">
-            {nws.map((item) => <DetailsBox_StateSelection nodeWrapper={item} />)}
+            {nws.map((item) => <DetailsBox_StateSelection key={item.creationId} nodeWrapper={item} />)}
         </div>);
     }
     

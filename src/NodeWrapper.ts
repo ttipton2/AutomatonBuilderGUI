@@ -6,6 +6,8 @@ import SelectableObject from './SelectableObject';
 import { Node, NodeConfig } from 'konva/lib/Node';
 
 export default class NodeWrapper extends SelectableObject {
+  private static NodeIndex: number = 0;
+
   public static readonly NodeRadius = 30;
   
   public static readonly SelectedStrokeColor = '#018ED5';
@@ -22,12 +24,22 @@ export default class NodeWrapper extends SelectableObject {
 
   private lastPos: Vector2d;
 
-  private isAcceptNode: boolean = false;
+  private _isAcceptNode: boolean = false;
 
   private _labelText: string = "State";
 
+  private readonly _creationId: number
+  public get creationId(): number {
+    return this._creationId;
+  }
+
   constructor(x: number, y: number) {
     super();
+    this._creationId = NodeWrapper.NodeIndex;
+    NodeWrapper.NodeIndex += 1;
+
+    this._labelText = `q${this._creationId}`;
+
     this.nodeGroup = new Konva.Group({ x: x, y: y });
 
     // create our shape
@@ -47,7 +59,7 @@ export default class NodeWrapper extends SelectableObject {
       fill: 'transparent',
       stroke: 'black',
       strokeWidth: 1.5,
-      visible: this.isAcceptNode
+      visible: this._isAcceptNode
     });
 
     this.nodeLabel = new Konva.Text({
@@ -103,9 +115,23 @@ export default class NodeWrapper extends SelectableObject {
     this.nodeGroup.destroy();
   }
 
+  public get isAcceptNode(): boolean {
+    return this._isAcceptNode;
+  }
+
+  public set isAcceptNode(value: boolean) {
+    const prev = this._isAcceptNode;
+    this._isAcceptNode = value;
+    if (this._isAcceptNode) {
+      this.nodeAcceptCircle.visible(true);
+    }
+    else {
+      this.nodeAcceptCircle.visible(false);
+    }
+  }
+
   public toggleAcceptNode() {
-    this.isAcceptNode = !this.isAcceptNode;
-    this.nodeAcceptCircle.visible(this.isAcceptNode);
+    this.isAcceptNode = !this._isAcceptNode;
   }
 
 
