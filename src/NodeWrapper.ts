@@ -9,7 +9,7 @@ export default class NodeWrapper extends SelectableObject {
   private static NodeIndex: number = 0;
 
   public static readonly NodeRadius = 30;
-  
+
   public static readonly SelectedStrokeColor = '#018ED5';
   public static readonly SelectedStrokeWidth = 4;
 
@@ -70,7 +70,7 @@ export default class NodeWrapper extends SelectableObject {
       align: 'center',
       verticalAlign: 'middle',
       text: this._labelText,
-      fontSize: 30,
+      fontSize: 20,
       fill: 'black',
     });
 
@@ -137,7 +137,7 @@ export default class NodeWrapper extends SelectableObject {
 
   public enableNewConnectionGlow() {
     this.nodeBackground.shadowColor('#2FDFFB');
-    this.nodeBackground.shadowOffset({x: 0, y: 0});
+    this.nodeBackground.shadowOffset({ x: 0, y: 0 });
     this.nodeBackground.shadowOpacity(1);
     this.nodeBackground.shadowBlur(10);
     this.nodeBackground.shadowEnabled(true);
@@ -149,7 +149,7 @@ export default class NodeWrapper extends SelectableObject {
 
   public enableDragDropShadow() {
     this.nodeBackground.shadowColor('#000000');
-    this.nodeBackground.shadowOffset({x: 0, y: 3});
+    this.nodeBackground.shadowOffset({ x: 0, y: 3 });
     this.nodeBackground.shadowOpacity(0.2);
     this.nodeBackground.shadowBlur(10);
     this.nodeBackground.shadowEnabled(true);
@@ -206,18 +206,20 @@ export default class NodeWrapper extends SelectableObject {
       // Move all selected objects along with this one!
       const allOtherSelected = StateManager.selectedObjects.filter((i) => i !== this);
       allOtherSelected.forEach((obj) => {
-        obj.konvaObject().absolutePosition({
-          x: obj.konvaObject().absolutePosition().x + ev.evt.movementX,
-          y: obj.konvaObject().absolutePosition().y + ev.evt.movementY
-        });
-        obj.konvaObject().fire('move', ev);
+        if (obj instanceof NodeWrapper) {
+          obj.konvaObject().absolutePosition({
+            x: obj.konvaObject().absolutePosition().x + ev.evt.movementX,
+            y: obj.konvaObject().absolutePosition().y + ev.evt.movementY
+          });
+          obj.konvaObject().fire('move', ev);
+        }
       });
     }
   }
 
   public onDragEnd() {
     if (StateManager.currentTool == Tool.States) {
-      
+
     }
     else if (StateManager.currentTool === Tool.Transitions) {
       StateManager.endTentativeTransition();
@@ -230,7 +232,7 @@ export default class NodeWrapper extends SelectableObject {
       });
     }
   }
-  
+
   public konvaObject(): Konva.Node {
     return this.nodeGroup;
   }

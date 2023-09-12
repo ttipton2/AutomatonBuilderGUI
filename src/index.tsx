@@ -52,6 +52,11 @@ function App() {
                     startNode={startNode}
                     setStartNode={setStartNode}
                 />
+                <div className='grid grid-cols-3'>
+                    <div className='block bg-red-400 rounded-l-lg ml-2 p-1 text-center'>Configure</div>
+                    <div className='block bg-green-400 p-1 text-center'>Debug</div>
+                    <div className='block bg-blue-400 rounded-r-lg mr-2 p-1 text-center'>Test</div>
+                </div>
             </FloatingPanel>
             <FloatingPanel heightPolicy='min'>
                 <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />

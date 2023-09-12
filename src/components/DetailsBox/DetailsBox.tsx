@@ -1,5 +1,6 @@
 import NodeWrapper from "../../NodeWrapper";
 import SelectableObject from "../../SelectableObject";
+import TransitionWrapper from "../../TransitionWrapper";
 import DetailsBox_MultipleSelection from "./DetailsBox_MultipleSelection";
 import DetailsBox_NoSelection from "./DetailsBox_NoSelection";
 import DetailsBox_StateSelection from "./DetailsBox_StateSelection";
@@ -15,13 +16,25 @@ export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProp
         return (<DetailsBox_NoSelection />);
     }
     else {
-        const nws = (props.selection as Array<NodeWrapper>);
-        return (<div className="divide-y divide-solid divide-black">
-            {nws.map((item) => <DetailsBox_StateSelection
+        const selectionElements: Array<JSX.Element> = [];
+
+        for (let i = 0; i < props.selection.length; i++) {
+            const item = props.selection[i];
+
+            if (item instanceof NodeWrapper) {
+                selectionElements.push(<DetailsBox_StateSelection
                 key={item.creationId}
                 nodeWrapper={item}
                 startNode={props.startNode}
-                setStartNode={props.setStartNode} />)}
+                setStartNode={props.setStartNode} />);
+            }
+            else if (item instanceof TransitionWrapper) {
+                selectionElements.push(<div>hoo hoo</div>);
+            }
+        }
+        const nws = (props.selection as Array<NodeWrapper>);
+        return (<div className="divide-y divide-solid divide-black">
+            {selectionElements}
         </div>);
     }
 
