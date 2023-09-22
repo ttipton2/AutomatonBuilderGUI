@@ -52,11 +52,18 @@ function App() {
                     startNode={startNode}
                     setStartNode={setStartNode}
                 />
-                <div className='grid grid-cols-3'>
-                    <div className='block bg-red-400 rounded-l-lg ml-2 p-1 text-center'>Configure</div>
+                <div className="flex flex-row w-full">
+                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-red-400 p-1 text-center">Q</div>
+                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-orange-400 p-1 text-center">Σ</div>
+                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-yellow-400 p-1 text-center">δ</div>
+                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-green-400 p-1 text-center">q0</div>
+                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-blue-400 p-1 text-center">F</div>
+                </div>
+                {/* <div className='grid grid-cols-3'>
+                    <div className='block bg-red-400  ml-2 p-1 text-center'>Configure</div>
                     <div className='block bg-green-400 p-1 text-center'>Debug</div>
                     <div className='block bg-blue-400 rounded-r-lg mr-2 p-1 text-center'>Test</div>
-                </div>
+                </div> */}
             </FloatingPanel>
             <FloatingPanel heightPolicy='min'>
                 <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />

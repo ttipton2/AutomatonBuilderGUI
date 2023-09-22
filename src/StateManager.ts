@@ -3,6 +3,7 @@ import { Tool } from "./Tool";
 import Konva from "konva";
 import TransitionWrapper from "./TransitionWrapper";
 import SelectableObject from "./SelectableObject";
+import TokenWrapper from "./TokenWrapper";
 
 export default class StateManager {
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
@@ -10,6 +11,7 @@ export default class StateManager {
 
     private static _nodeWrappers: Array<NodeWrapper> = [];
     private static _transitionWrappers: Array<TransitionWrapper> = [];
+    private static _alphabet: Array<TokenWrapper> = [];
 
     private static _selectedObjects: Array<SelectableObject> = [];
 
@@ -263,5 +265,23 @@ export default class StateManager {
 
         StateManager.setSelectedObjects([]);
         StateManager._selectedObjects = [];
+    }
+
+    public static addNewAlphabetToken() {
+        StateManager._alphabet.push(new TokenWrapper());
+
+        console.log('Token wrapper added, now the list of token wrappers is', StateManager._alphabet);
+    }
+
+    public static deleteAlphabetToken(wrapper: TokenWrapper) {
+        StateManager._alphabet = StateManager._alphabet.filter(i => i != wrapper);
+    }
+
+    public static set alphabet(newAlphabet: Array<TokenWrapper>) {
+        StateManager._alphabet = newAlphabet;
+    }
+    
+    public static get alphabet() {
+        return [...StateManager._alphabet];
     }
 }

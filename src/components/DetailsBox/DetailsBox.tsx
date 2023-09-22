@@ -1,6 +1,7 @@
 import NodeWrapper from "../../NodeWrapper";
 import SelectableObject from "../../SelectableObject";
 import TransitionWrapper from "../../TransitionWrapper";
+import DetailsBox_AlphabetEditor from "./DetailsBox_AlphabetEditor";
 import DetailsBox_MultipleSelection from "./DetailsBox_MultipleSelection";
 import DetailsBox_NoSelection from "./DetailsBox_NoSelection";
 import DetailsBox_StateSelection from "./DetailsBox_StateSelection";
@@ -13,7 +14,7 @@ interface DetailsBoxProps {
 
 export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProps>) {
     if (props.selection.length == 0) {
-        return (<DetailsBox_NoSelection />);
+        return (<DetailsBox_AlphabetEditor />);
     }
     else {
         const selectionElements: Array<JSX.Element> = [];
