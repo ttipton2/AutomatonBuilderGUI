@@ -266,22 +266,15 @@ export default class StateManager {
         StateManager.setSelectedObjects([]);
         StateManager._selectedObjects = [];
     }
-
-    public static addNewAlphabetToken() {
-        StateManager._alphabet.push(new TokenWrapper());
-
-        console.log('Token wrapper added, now the list of token wrappers is', StateManager._alphabet);
-    }
-
-    public static deleteAlphabetToken(wrapper: TokenWrapper) {
-        StateManager._alphabet = StateManager._alphabet.filter(i => i != wrapper);
-    }
-
+    
     public static set alphabet(newAlphabet: Array<TokenWrapper>) {
         StateManager._alphabet = newAlphabet;
+
+        console.log('alphabet is', StateManager._alphabet);
     }
-    
+
     public static get alphabet() {
+        console.log('alphabet is', StateManager._alphabet);
         return [...StateManager._alphabet];
     }
 }
