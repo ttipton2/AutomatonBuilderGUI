@@ -17,6 +17,13 @@ function App() {
     useEffect(() => {
         StateManager.setSelectedObjects = setSelectedObjects;
         addEventListener('keydown', (ev: KeyboardEvent) => {
+            // Ignore keyboard shortcuts if user is in a text box.
+            // Solution from https://stackoverflow.com/a/4575309
+            const n = document.activeElement.nodeName;
+            if (n == 'TEXTAREA' || n == 'INPUT') {
+                return;
+            }
+            
             if (ev.code === "KeyA") {
                 setCurrentTool(Tool.States);
             }
