@@ -3,11 +3,9 @@ import StateManager from './StateManager';
 import { Tool } from './Tool';
 import { Vector2d } from 'konva/lib/types';
 import SelectableObject from './SelectableObject';
-import { Node, NodeConfig } from 'konva/lib/Node';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class NodeWrapper extends SelectableObject {
-  private static NodeIndex: number = 0;
-
   public static readonly NodeRadius = 30;
 
   public static readonly SelectedStrokeColor = '#018ED5';
@@ -28,17 +26,16 @@ export default class NodeWrapper extends SelectableObject {
 
   private _labelText: string = "State";
 
-  private readonly _creationId: number
-  public get creationId(): number {
+  private readonly _creationId: string
+  public get creationId(): string {
     return this._creationId;
   }
 
   constructor(x: number, y: number) {
     super();
-    this._creationId = NodeWrapper.NodeIndex;
-    NodeWrapper.NodeIndex += 1;
+    this._creationId = uuidv4();
 
-    this._labelText = `q${this._creationId}`;
+    this._labelText = `State`;
 
     this.nodeGroup = new Konva.Group({ x: x, y: y });
 

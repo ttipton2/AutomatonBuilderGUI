@@ -4,6 +4,7 @@ import SelectableObject from "./SelectableObject";
 import StateManager from "./StateManager";
 import { Tool } from "./Tool";
 import TokenWrapper from "./TokenWrapper";
+import { v4 as uuidv4 } from 'uuid';
 
 export default class TransitionWrapper extends SelectableObject {
     public static readonly ExtraTransitionArrowPadding = 5;
@@ -16,16 +17,28 @@ export default class TransitionWrapper extends SelectableObject {
     private labelCenterDebugObject: Konva.Circle;
     public konvaGroup: Konva.Group;
 
-    private sourceNode: NodeWrapper;
-    private destNode: NodeWrapper;
+    private _sourceNode: NodeWrapper;
+    public get sourceNode() { return this._sourceNode; }
 
-    private tokens: Set<TokenWrapper>;
+    private _destNode: NodeWrapper;
+    public get destNode() { return this._destNode; }
+
+    private _tokens: Set<TokenWrapper>;
+
+    private _isEpsilonTransition: boolean;
+
+    private readonly _creationId: string
+    public get creationId() {
+        return this._creationId;
+    }
 
     constructor(sourceNode: NodeWrapper, destNode: NodeWrapper) {
         super();
-        this.sourceNode = sourceNode;
-        this.destNode = destNode;
-        this.tokens = new Set<TokenWrapper>();
+        this._creationId = uuidv4();
+        this._sourceNode = sourceNode;
+        this._destNode = destNode;
+        this._tokens = new Set<TokenWrapper>();
+        this._isEpsilonTransition = false;
 
         this.konvaGroup = new Konva.Group();
 
@@ -65,13 +78,24 @@ export default class TransitionWrapper extends SelectableObject {
         this.updatePoints();
 
         this.konvaGroup.on('click', (ev) => this.onClick.call(this, ev));
-        this.sourceNode.nodeGroup.on('move.transition', (ev) => this.updatePoints.call(this));
-        this.destNode.nodeGroup.on('move.transition', (ev) => this.updatePoints.call(this));
+        this._sourceNode.nodeGroup.on('move.transition', (ev) => this.updatePoints.call(this));
+        this._destNode.nodeGroup.on('move.transition', (ev) => this.updatePoints.call(this));
+    }
+
+    private resetLabel() {
+        let text = [];
+        if (this.isEpsilonTransition) {
+            text.push("ε");
+        }
+
+        this._tokens.forEach(tok => text.push(tok.symbol));
+        this.labelObject.text(text.join(','));
     }
 
     public updatePoints() {
-        let srcPos = this.sourceNode.nodeGroup.absolutePosition();
-        let dstPos = this.destNode.nodeGroup.absolutePosition();
+        this.resetLabel();
+        let srcPos = this._sourceNode.nodeGroup.absolutePosition();
+        let dstPos = this._destNode.nodeGroup.absolutePosition();
 
         let xDestRelativeToSrc = dstPos.x - srcPos.x;
         let yDestRelativeToSrc = dstPos.y - srcPos.y;
@@ -102,7 +126,7 @@ export default class TransitionWrapper extends SelectableObject {
     }
 
     public involvesNode(node: NodeWrapper): boolean {
-        return this.sourceNode === node || this.destNode === node;
+        return this._sourceNode === node || this._destNode === node;
     }
 
     public onClick(ev: Konva.KonvaEventObject<MouseEvent>) {
@@ -134,10 +158,25 @@ export default class TransitionWrapper extends SelectableObject {
     }
 
     public addToken(tok: TokenWrapper) {
-        this.tokens.add(tok);
+        this._tokens.add(tok);
+        this.updatePoints();
     }
 
     public removeToken(tok: TokenWrapper) {
-        this.tokens.delete(tok);
+        this._tokens.delete(tok);
+        this.updatePoints();
+    }
+
+    public hasToken(tok: TokenWrapper): boolean {
+        return this._tokens.has(tok);
+    }
+
+    public set isEpsilonTransition(value: boolean) {
+        this._isEpsilonTransition = value;
+        this.updatePoints();
+    }
+
+    public get isEpsilonTransition(): boolean {
+        return this._isEpsilonTransition;
     }
 }

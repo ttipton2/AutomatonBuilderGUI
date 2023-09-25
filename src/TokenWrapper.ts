@@ -1,14 +1,14 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export default class TokenWrapper {
-    private static currentCreationId = 0;
     public symbol: string
     
-    private readonly _creationId: number
+    private readonly _creationId: string
     public get creationId() {
         return this._creationId;
     }
 
     constructor() {
-        this._creationId = TokenWrapper.currentCreationId;
-        TokenWrapper.currentCreationId += 1;
+        this._creationId = uuidv4();
     }
 }

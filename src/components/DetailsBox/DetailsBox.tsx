@@ -5,6 +5,7 @@ import DetailsBox_AlphabetEditor from "./DetailsBox_AlphabetEditor";
 import DetailsBox_MultipleSelection from "./DetailsBox_MultipleSelection";
 import DetailsBox_NoSelection from "./DetailsBox_NoSelection";
 import DetailsBox_StateSelection from "./DetailsBox_StateSelection";
+import DetailsBox_TransitionSelection from "./DetailsBox_TransitionSelection";
 
 interface DetailsBoxProps {
     selection: Array<SelectableObject>
@@ -30,7 +31,7 @@ export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProp
                 setStartNode={props.setStartNode} />);
             }
             else if (item instanceof TransitionWrapper) {
-                selectionElements.push(<div>hoo hoo</div>);
+                selectionElements.push(<DetailsBox_TransitionSelection key={item.creationId} transitionWrapper={item}/>);
             }
         }
         const nws = (props.selection as Array<NodeWrapper>);

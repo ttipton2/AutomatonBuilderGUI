@@ -268,7 +268,18 @@ export default class StateManager {
     }
     
     public static set alphabet(newAlphabet: Array<TokenWrapper>) {
+        const oldAlphabet = StateManager._alphabet;
         StateManager._alphabet = newAlphabet;
+
+        oldAlphabet.forEach(tok => {
+            if (!newAlphabet.includes(tok)) {
+                // The token tok was removed from the alphabet, so we need
+                // to remove it from any transitions!
+                StateManager._transitionWrappers.forEach(transition => {
+                    transition.removeToken(tok);
+                });
+            }
+        });
 
         console.log('alphabet is', StateManager._alphabet);
     }
