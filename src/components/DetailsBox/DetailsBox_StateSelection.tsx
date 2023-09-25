@@ -19,8 +19,8 @@ function SetStartStateButton(props: SetStartStateButtonProps) {
     let classes = 'rounded-full p-2 m-1 mx-2 block ';
     if (StateManager.startNode === props.nodeWrapper) {
         return (<button
-        className={classes + 'bg-slate-400 text-gray-700'}
-        disabled={true}>
+            className={classes + 'bg-slate-400 text-gray-700'}
+            disabled={true}>
             Current Start State
         </button>)
     }
@@ -50,7 +50,12 @@ export default function DetailsBox_StateSelection(props: DetailsBox_StateSelecti
 
     return (
         <div className="flex flex-col">
-            <input className="text-inherit/40 font-medium text-lg" type="text" placeholder="State name" value={nodeLabelText} onChange={e => setLabelText(e.target.value)}></input>
+            <div className="font-medium text-2xl">State</div>
+            <div className="flex flex-row">
+                <div className="flex-1 mr-4">Name</div>
+                <input className="flex-1" type="text" placeholder="State name" value={nodeLabelText} onChange={e => setLabelText(e.target.value)}></input>
+
+            </div>
             <SetStartStateButton nodeWrapper={nw} startNode={props.startNode} setStartNode={props.setStartNode} />
             <div>
                 <input type="checkbox" id="is-accept-state" name="is-accept-state" checked={isAcceptNode} onChange={e => setIsAcceptNode(e.target.checked)}></input>

@@ -16,7 +16,7 @@ function DetailsBox_TokenEditor(props: DetailsBox_TokenEditorProps) {
     }, [tokenSymbol]);
 
     return (
-        <div className="flex flex-row">
+        <div className="flex flex-row mb-2">
             <input className="flex-1 text-inherit/40" type="text" placeholder="Token symbol" value={tokenSymbol} onChange={e => setTokenSymbol(e.target.value)}></input>
             <button className="flex-0 rounded-full mx-2 px-2 block aspect-square bg-red-500 text-center text-white" onClick={() => props.removeFunc(tw)}>x</button>
         </div>

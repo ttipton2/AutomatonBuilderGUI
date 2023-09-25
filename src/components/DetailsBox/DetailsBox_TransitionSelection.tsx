@@ -50,6 +50,7 @@ export default function DetailsBox_TransitionSelection(props: DetailsBox_Transit
 
     return (
         <div className="flex flex-col">
+            <div className="font-medium text-2xl">Transition</div>
             <div>{srcNode.labelText} to {dstNode.labelText}</div>
             <div>
                 Transition on:
