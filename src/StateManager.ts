@@ -288,4 +288,29 @@ export default class StateManager {
         console.log('alphabet is', StateManager._alphabet);
         return [...StateManager._alphabet];
     }
+
+
+    public static get jsonData(): string {
+        let obj: object = {
+            states: [],
+            alphabet: [],
+            transitions: null,
+            startState: null,
+            acceptStates: []
+        };
+
+        return ""
+    }
+}
+
+interface FiniteAutomaton {
+    states: Array<StateObject>
+    alphabet: Array<string>
+    
+
+}
+interface StateObject {
+    id: string
+    x: number
+    y: number
 }
