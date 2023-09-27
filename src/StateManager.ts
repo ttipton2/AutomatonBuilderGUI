@@ -42,7 +42,8 @@ export default class StateManager {
         this._stage = new Konva.Stage({
             container: 'graphics-container',
             width: window.innerWidth,
-            height: window.innerHeight
+            height: window.innerHeight,
+            draggable: true
         });
         this._stage.on('dblclick', (ev) => StateManager.onDoubleClick.call(this, ev));
         this._stage.on('click', (ev) => StateManager.onClick.call(this, ev));

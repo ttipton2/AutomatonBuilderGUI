@@ -94,8 +94,8 @@ export default class TransitionWrapper extends SelectableObject {
 
     public updatePoints() {
         this.resetLabel();
-        let srcPos = this._sourceNode.nodeGroup.absolutePosition();
-        let dstPos = this._destNode.nodeGroup.absolutePosition();
+        let srcPos = this._sourceNode.nodeGroup.position();
+        let dstPos = this._destNode.nodeGroup.position();
 
         let xDestRelativeToSrc = dstPos.x - srcPos.x;
         let yDestRelativeToSrc = dstPos.y - srcPos.y;
