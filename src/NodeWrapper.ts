@@ -40,11 +40,11 @@ export default class NodeWrapper extends SelectableObject {
     }
   }
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, label: string | null = null, isAcceptState: boolean | null = null, id: string | null = null) {
     super();
-    this._id = uuidv4();
+    this._id = id ?? uuidv4();
 
-    this._labelText = `State`;
+    this._labelText = label ?? `State`;
 
     this.nodeGroup = new Konva.Group({ x: x, y: y });
 

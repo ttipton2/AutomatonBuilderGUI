@@ -4,6 +4,7 @@ import Konva from "konva";
 import TransitionWrapper from "./TransitionWrapper";
 import SelectableObject from "./SelectableObject";
 import TokenWrapper from "./TokenWrapper";
+import { ChangeEvent, ChangeEventHandler } from "react";
 
 export default class StateManager {
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
@@ -313,4 +314,84 @@ export default class StateManager {
         el.click();
         document.body.removeChild(el);
     }
+
+    public static uploadJSON(ev: ChangeEvent<HTMLInputElement>) {
+        console.log(ev);
+        const file = ev.target.files.item(0);
+        
+        const fileText = file.text()
+        .then(text => {
+            console.log('success getting the file text!', JSON.parse(text));
+            StateManager.loadAutomaton(JSON.parse(text));
+        },
+        reject_reason => {
+            console.log('could not get file text, reason was', reject_reason);
+        });
+    }
+
+    public static loadAutomaton(json: SerializedAutomaton) {
+        const { states, alphabet, transitions, startState, acceptStates } = json;
+
+        // TODO: Clear all current stuff
+
+        // Load each state
+        states.forEach(state => {
+            const newState = new NodeWrapper(state.x, state.y, state.label, acceptStates.includes(state.id), state.id);
+            StateManager._nodeWrappers.push(newState);
+            StateManager._nodeLayer.add(newState.nodeGroup);
+        });
+
+        // Load the alphabet
+        alphabet.forEach(tok => {
+            const newTok = new TokenWrapper(tok.symbol, tok.id);
+            StateManager._alphabet.push(newTok);
+        });
+
+        // TODO: Load transitions
+
+        // Load the start state
+        const startNodeObj = StateManager._nodeWrappers.filter(n => n.id === startState);
+        if (startNodeObj.length <= 0) {
+            console.error('Start state not found!!');
+        }
+        else {
+            StateManager._startNode = startNodeObj[0];
+        }
+
+        // Accept states are loaded at the same time as states themselves
+
+        // Refresh canvas?
+
+
+        this._stage.draw();
+        console.log('all loaded!');
+    }
+}
+
+interface SerializedAutomaton {
+    states: Array<SerializedState>,
+    alphabet: Array<SerializedToken>,
+    transitions: Array<SerializedTransition>,
+    startState: string,
+    acceptStates: Array<string>
+}
+
+interface SerializedState {
+    id: string,
+    x: number,
+    y: number,
+    label: string
+}
+
+interface SerializedToken {
+    id: string,
+    symbol: string
+}
+
+interface SerializedTransition {
+    id: string,
+    source: string,
+    dest: string,
+    isEpsilonTransition: boolean,
+    tokens: Array<string>
 }

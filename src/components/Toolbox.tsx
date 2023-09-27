@@ -13,6 +13,7 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
         <ToolButton tool={Tool.Transitions} setCurrentTool={props.setCurrentTool} currentTool={props.currentTool}>Transitions</ToolButton>
         <div className='grow'></div>
         <button className='rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center' onClick={StateManager.downloadJSON}>Save</button>
+        <input type='file' id='file-uploader' onChange={StateManager.uploadJSON}></input>
         <button className='rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center'>Load</button>
     </div>);
 }

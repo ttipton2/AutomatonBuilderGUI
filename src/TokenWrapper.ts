@@ -8,8 +8,9 @@ export default class TokenWrapper {
         return this._id;
     }
 
-    constructor() {
-        this._id = uuidv4();
+    constructor(symbol: string | null = null, id: string | null = null) {
+        this._id = id ?? uuidv4();
+        this.symbol = symbol ?? '';
     }
 
     public toJSON() {
