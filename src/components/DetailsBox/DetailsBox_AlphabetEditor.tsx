@@ -43,7 +43,7 @@ export default function DetailsBox_AlphabetEditor() {
         StateManager.alphabet = alphabet;
     }, [alphabet]);
 
-    const tokenWrapperElements = alphabet.map(tw => <DetailsBox_TokenEditor tokenWrapper={tw} removeFunc={removeTokenFromAlphabet} key={tw.creationId} />);
+    const tokenWrapperElements = alphabet.map(tw => <DetailsBox_TokenEditor tokenWrapper={tw} removeFunc={removeTokenFromAlphabet} key={tw.id} />);
 
 
 

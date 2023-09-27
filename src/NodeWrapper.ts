@@ -26,14 +26,23 @@ export default class NodeWrapper extends SelectableObject {
 
   private _labelText: string = "State";
 
-  private readonly _creationId: string
-  public get creationId(): string {
-    return this._creationId;
+  private readonly _id: string
+  public get id(): string {
+    return this._id;
+  }
+
+  public toJSON() {
+    return {
+      id: this.id,
+      x: this.nodeGroup.x(),
+      y: this.nodeGroup.y(),
+      label: this.labelText
+    }
   }
 
   constructor(x: number, y: number) {
     super();
-    this._creationId = uuidv4();
+    this._id = uuidv4();
 
     this._labelText = `State`;
 

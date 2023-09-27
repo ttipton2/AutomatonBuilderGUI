@@ -289,28 +289,28 @@ export default class StateManager {
         return [...StateManager._alphabet];
     }
 
-
-    public static get jsonData(): string {
-        let obj: object = {
-            states: [],
-            alphabet: [],
-            transitions: null,
-            startState: null,
-            acceptStates: []
+    public static toJSON() {
+        return {
+            states: StateManager._nodeWrappers.map(node => node.toJSON()),
+            alphabet: StateManager._alphabet.map(tok => tok.toJSON()),
+            transitions: StateManager._transitionWrappers.map(trans => trans.toJSON()),
+            startState: StateManager._startNode.id,
+            acceptStates: StateManager._nodeWrappers.filter(node => node.isAcceptNode).map(node => node.id)
         };
-
-        return ""
     }
-}
 
-interface FiniteAutomaton {
-    states: Array<StateObject>
-    alphabet: Array<string>
-    
+    public static downloadJSON() {
+        const jsonString = JSON.stringify(StateManager.toJSON(), null, 4);
 
-}
-interface StateObject {
-    id: string
-    x: number
-    y: number
+        // A hacky solution in my opinion, but apparently it works so hey.
+        // Adapted from https://stackoverflow.com/a/18197341
+
+        let el = document.createElement('a');
+        el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jsonString));
+        el.setAttribute('download', 'finite_automaton.json');
+        el.style.display = 'none';
+        document.body.appendChild(el);
+        el.click();
+        document.body.removeChild(el);
+    }
 }

@@ -25,13 +25,13 @@ export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProp
 
             if (item instanceof NodeWrapper) {
                 selectionElements.push(<DetailsBox_StateSelection
-                key={item.creationId}
+                key={item.id}
                 nodeWrapper={item}
                 startNode={props.startNode}
                 setStartNode={props.setStartNode} />);
             }
             else if (item instanceof TransitionWrapper) {
-                selectionElements.push(<DetailsBox_TransitionSelection key={item.creationId} transitionWrapper={item}/>);
+                selectionElements.push(<DetailsBox_TransitionSelection key={item.id} transitionWrapper={item}/>);
             }
         }
         const nws = (props.selection as Array<NodeWrapper>);

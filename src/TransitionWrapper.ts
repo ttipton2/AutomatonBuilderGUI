@@ -27,14 +27,14 @@ export default class TransitionWrapper extends SelectableObject {
 
     private _isEpsilonTransition: boolean;
 
-    private readonly _creationId: string
-    public get creationId() {
-        return this._creationId;
+    private readonly _id: string
+    public get id() {
+        return this._id;
     }
 
     constructor(sourceNode: NodeWrapper, destNode: NodeWrapper) {
         super();
-        this._creationId = uuidv4();
+        this._id = uuidv4();
         this._sourceNode = sourceNode;
         this._destNode = destNode;
         this._tokens = new Set<TokenWrapper>();
@@ -178,5 +178,15 @@ export default class TransitionWrapper extends SelectableObject {
 
     public get isEpsilonTransition(): boolean {
         return this._isEpsilonTransition;
+    }
+
+    public toJSON() {
+        return {
+            id: this.id,
+            source: this._sourceNode.id,
+            dest: this._destNode.id,
+            isEpsilonTransition: this.isEpsilonTransition,
+            tokens: Array.from(this._tokens.values()).map(tok => tok.id)
+        };
     }
 }

@@ -29,9 +29,9 @@ function DetailsBox_TransitionTokenCheckBox(props: DetailsBox_TransitionTokenChe
     }, [tokenIsIncluded]);
 
     return (
-        <div key={token.creationId}>
-            <input type="checkbox" id="is-epsilon-transition" name={`transition-accepts-${token.creationId}`} checked={tokenIsIncluded} onChange={e => setTokenIsIncluded(e.target.checked)}></input>
-            <label htmlFor={`transition-accepts-${token.creationId}`}>{token.symbol}</label>
+        <div key={token.id}>
+            <input type="checkbox" id="is-epsilon-transition" name={`transition-accepts-${token.id}`} checked={tokenIsIncluded} onChange={e => setTokenIsIncluded(e.target.checked)}></input>
+            <label htmlFor={`transition-accepts-${token.id}`}>{token.symbol}</label>
         </div>
     )
 }

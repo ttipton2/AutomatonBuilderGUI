@@ -33,6 +33,10 @@ function App() {
             else if (ev.code === "KeyS") {
                 setCurrentTool(Tool.Select);
             }
+
+            else if (ev.code === "KeyW") {
+                console.log(StateManager.toJSON());
+            }
         });
     }, []);
 
