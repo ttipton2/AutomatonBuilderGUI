@@ -347,7 +347,17 @@ export default class StateManager {
             StateManager._alphabet.push(newTok);
         });
 
-        // TODO: Load transitions
+        // Load transitions
+        transitions.forEach(trans => {
+            const src = StateManager._nodeWrappers.find(n => n.id === trans.source);
+            const dest = StateManager._nodeWrappers.find(n => n.id === trans.dest);
+            const isEpsilonTransition = trans.isEpsilonTransition;
+            const tokens = trans.tokens.map(tokID => StateManager._alphabet.find(tok => tok.id === tokID));
+            const newTrans = new TransitionWrapper(src, dest, isEpsilonTransition, tokens);
+
+            StateManager._transitionWrappers.push(newTrans);
+            StateManager._transitionLayer.add(newTrans.konvaGroup);
+        })
 
         // Load the start state
         const startNodeObj = StateManager._nodeWrappers.filter(n => n.id === startState);

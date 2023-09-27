@@ -32,13 +32,13 @@ export default class TransitionWrapper extends SelectableObject {
         return this._id;
     }
 
-    constructor(sourceNode: NodeWrapper, destNode: NodeWrapper) {
+    constructor(sourceNode: NodeWrapper, destNode: NodeWrapper, isEpsilonTransition: boolean | null = null, tokens: Array<TokenWrapper> | Set<TokenWrapper> | null = null) {
         super();
         this._id = uuidv4();
         this._sourceNode = sourceNode;
         this._destNode = destNode;
-        this._tokens = new Set<TokenWrapper>();
-        this._isEpsilonTransition = false;
+        this._tokens = new Set(tokens) ?? new Set<TokenWrapper>();
+        this._isEpsilonTransition = isEpsilonTransition ?? false;
 
         this.konvaGroup = new Konva.Group();
 
