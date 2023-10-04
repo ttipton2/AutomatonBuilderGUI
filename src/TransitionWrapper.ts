@@ -94,6 +94,47 @@ export default class TransitionWrapper extends SelectableObject {
 
     public updatePoints() {
         this.resetLabel();
+
+        // If source node and destination node are the same,
+        // then the transition arrow should not do its usual thing.
+        // Instead, it should loop up and around
+        if (this._sourceNode == this._destNode) {
+            console.log('source node and dest node are the same!')
+            let srcPos = this._sourceNode.nodeGroup.position();
+            const ANGLE = 60.0 * (Math.PI / 180.0);
+            const DIST = 30;
+
+
+            const centerPtX = srcPos.x;
+            const centerPtY = srcPos.y - NodeWrapper.NodeRadius - DIST * 1.5;
+
+            let pointsArray = [
+                srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE),
+                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE),
+
+                srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE) + DIST * Math.cos(ANGLE),
+                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
+
+                centerPtX,
+                centerPtY,
+
+                srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - DIST * Math.cos(ANGLE),
+                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
+
+                srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE),
+                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE)
+            ];
+            this.arrowObject.points(pointsArray);
+            this.arrowObject.tension(0);
+
+            this.labelObject.position({x: centerPtX, y: centerPtY});
+            this.labelCenterDebugObject.position({x: centerPtX, y: centerPtY});
+
+            return;
+        }
+
+        // The source and destination are different, so draw the
+        // arrow from one to the other.
         let srcPos = this._sourceNode.nodeGroup.position();
         let dstPos = this._destNode.nodeGroup.position();
 
@@ -112,6 +153,8 @@ export default class TransitionWrapper extends SelectableObject {
             dstPos.x - xUnitTowardsSrc,
             dstPos.y - yUnitTowardsSrc
         ]);
+
+        this.arrowObject.tension(0);
 
         // calculate center of transition line, for label
         const xAvg = ((srcPos.x + xUnitTowardsSrc) + (dstPos.x - xUnitTowardsSrc)) / 2;
