@@ -121,8 +121,8 @@ export default class TransitionWrapper extends SelectableObject {
                 srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - DIST * Math.cos(ANGLE),
                 srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
 
-                srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE),
-                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE)
+                srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.cos(ANGLE),
+                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.sin(ANGLE)
             ];
             this.arrowObject.points(pointsArray);
             this.arrowObject.tension(0);
