@@ -7,6 +7,8 @@ import Toolbox from './components/Toolbox';
 import FloatingPanel from './components/FloatingPanel';
 import SelectableObject from './SelectableObject';
 import DetailsBox from './components/DetailsBox/DetailsBox';
+import ModalWindow from './components/ModalWindow';
+import ConfigureAutomatonWindow from './components/ConfigureAutomatonWindow';
 
 function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -80,6 +82,10 @@ function App() {
                 <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
             </FloatingPanel>
         </div>
+
+        <ModalWindow>
+            <ConfigureAutomatonWindow />
+        </ModalWindow>
     </>
     );
 }
