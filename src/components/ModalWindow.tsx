@@ -1,4 +1,27 @@
 
+interface ClosableModalWindowProps {
+    title?: string,
+    close?: () => void
+}
+
+export function ClosableModalWindow(props: React.PropsWithChildren<ClosableModalWindowProps>) {
+    return (<ModalWindow>
+        <div className="m-3">
+            <div className="flow-root">
+                <div className="float-left">
+                    <div className="font-medium text-3xl mb-2">
+                        {props.title}
+                    </div>
+                </div>
+                <button className="float-right" onClick={props.close}>
+                    X
+                </button>
+            </div>
+            {props.children}
+        </div>
+    </ModalWindow>);
+}
+
 export default function ModalWindow(props: React.PropsWithChildren) {
     return (
         <>

@@ -134,18 +134,12 @@ export default function ConfigureAutomatonWindow() {
         </select>
     );
 
+    const closeConfigWindow = () => {
+        console.log('close me');
+    };
+
     return (
-        <div className="m-3">
-            <div className="flow-root">
-                <div className="float-left">
-                    <div className="font-medium text-3xl mb-2">
-                        Configure Automaton
-                    </div>
-                </div>
-                <div className="float-right">
-                    X
-                </div>
-            </div>
+        <div className="">
             <div className="divide-y">
                 <ListItem
                     title="Automaton Type"
