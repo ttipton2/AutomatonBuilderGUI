@@ -8,7 +8,7 @@ interface ModalWindowListItemProps {
 
 export function CoreListItem(props: React.PropsWithChildren) {
     return (
-        <div className="flow-root bg-white p-2 px-2 first:rounded-t-lg last:rounded-b-lg">
+        <div className="flow-root bg-white dark:bg-gray-600 p-2 px-2 first:rounded-t-lg last:rounded-b-lg">
             {props.children}
         </div>
     );
@@ -35,7 +35,7 @@ export function ListItem(props: React.PropsWithChildren<ModalWindowListItemProps
         <CoreListItem>
             <CoreListItem_Left>
                 {props.title}
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
                     {props.subtitle}
                 </div>
             </CoreListItem_Left>

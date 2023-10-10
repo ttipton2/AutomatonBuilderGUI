@@ -53,7 +53,7 @@ export default function DetailsBox_StateSelection(props: DetailsBox_StateSelecti
             <div className="font-medium text-2xl">State</div>
             <div className="flex flex-row">
                 <div className="flex-1 mr-4">Name</div>
-                <input className="flex-1" type="text" placeholder="State name" value={nodeLabelText} onChange={e => setLabelText(e.target.value)}></input>
+                <input className="flex-1 bg-transparent" type="text" placeholder="State name" value={nodeLabelText} onChange={e => setLabelText(e.target.value)}></input>
 
             </div>
             <SetStartStateButton nodeWrapper={nw} startNode={props.startNode} setStartNode={props.setStartNode} />
