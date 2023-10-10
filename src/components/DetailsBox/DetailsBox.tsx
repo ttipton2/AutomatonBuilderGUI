@@ -15,7 +15,7 @@ interface DetailsBoxProps {
 
 export default function DetailsBox(props: React.PropsWithChildren<DetailsBoxProps>) {
     if (props.selection.length == 0) {
-        return (<DetailsBox_AlphabetEditor />);
+        return (null);
     }
     else {
         const selectionElements: Array<JSX.Element> = [];

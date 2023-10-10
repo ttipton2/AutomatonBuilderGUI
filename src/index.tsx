@@ -7,6 +7,8 @@ import Toolbox from './components/Toolbox';
 import FloatingPanel from './components/FloatingPanel';
 import SelectableObject from './SelectableObject';
 import DetailsBox from './components/DetailsBox/DetailsBox';
+import ModalWindow, { ClosableModalWindow } from './components/ModalWindow';
+import ConfigureAutomatonWindow from './components/ConfigureAutomatonWindow';
 
 function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -23,7 +25,7 @@ function App() {
             if (n == 'TEXTAREA' || n == 'INPUT') {
                 return;
             }
-            
+
             if (ev.code === "KeyA") {
                 setCurrentTool(Tool.States);
             }
@@ -52,34 +54,30 @@ function App() {
         StateManager.startNode = startNode;
     }, [startNode]);
 
-    // Sounds like we may want to do something with refs...
-    // First, I guess figure out a placeholder UI for when you have a node selected?
+
+    // Config window
+    const [configWindowOpen, setConfigWindowOpen] = useState(false);
+    const openConfigWindow = () => { setConfigWindowOpen(true); };
+    const closeConfigWindow = () => { setConfigWindowOpen(false); };
+
     return (<>
         <NodeView />
-        <div className='flex flex-row h-screen'>
+        <div className='flex flex-row h-screen text-center'>
             <FloatingPanel heightPolicy='min'>
                 <DetailsBox
                     selection={selectedObjects}
                     startNode={startNode}
                     setStartNode={setStartNode}
                 />
-                <div className="flex flex-row w-full">
-                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-red-400 p-1 text-center">Q</div>
-                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-orange-400 p-1 text-center">Σ</div>
-                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-yellow-400 p-1 text-center">δ</div>
-                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-green-400 p-1 text-center">q0</div>
-                    <div className="h-8 flex-1 min-w-1 first:rounded-l-lg last:rounded-r-lg bg-blue-400 p-1 text-center">F</div>
-                </div>
-                {/* <div className='grid grid-cols-3'>
-                    <div className='block bg-red-400  ml-2 p-1 text-center'>Configure</div>
-                    <div className='block bg-green-400 p-1 text-center'>Debug</div>
-                    <div className='block bg-blue-400 rounded-r-lg mr-2 p-1 text-center'>Test</div>
-                </div> */}
+                <button className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center" onClick={openConfigWindow}>Configure</button>
             </FloatingPanel>
             <FloatingPanel heightPolicy='min'>
                 <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
             </FloatingPanel>
         </div>
+
+        {configWindowOpen ? <ClosableModalWindow title='Configure Automaton' close={closeConfigWindow}><ConfigureAutomatonWindow /></ClosableModalWindow> : <></>}
+
     </>
     );
 }
