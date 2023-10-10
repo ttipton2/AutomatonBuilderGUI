@@ -1,63 +1,7 @@
 import { useEffect, useState } from "react";
 import TokenWrapper from "../TokenWrapper";
-import DetailsBox_AlphabetEditor from "./DetailsBox/DetailsBox_AlphabetEditor";
 import StateManager from "../StateManager";
-
-// interface ModalWindowListItemProps {
-//     selection: Array<SelectableObject>
-//     startNode: NodeWrapper
-//     setStartNode: React.Dispatch<React.SetStateAction<NodeWrapper>>
-// }
-
-interface ModalWindowListItemProps {
-    title: string,
-    subtitle?: string | undefined,
-    rightContent?: JSX.Element | undefined,
-    destination?: any | null
-}
-
-function CoreListItem(props: React.PropsWithChildren) {
-    return (
-        <div className="flow-root bg-white p-2 px-2 first:rounded-t-lg last:rounded-b-lg">
-            {props.children}
-        </div>
-    );
-}
-
-function CoreListItem_Left(props: React.PropsWithChildren) {
-    return (
-        <div className="float-left align-middle">
-            {props.children}
-        </div>
-    );
-}
-
-function CoreListItem_Right(props: React.PropsWithChildren) {
-    return (
-        <div className="float-right align-middle">
-            {props.children}
-        </div>
-    );
-}
-
-function ListItem(props: React.PropsWithChildren<ModalWindowListItemProps>) {
-    return (
-        <CoreListItem>
-            <CoreListItem_Left>
-                {props.title}
-                <div className="text-sm text-gray-600">
-                    {props.subtitle}
-                </div>
-            </CoreListItem_Left>
-            <CoreListItem_Right>
-                {props.rightContent}
-            </CoreListItem_Right>
-            <CoreListItem_Right>
-                {props.destination !== null && props.destination !== undefined ? ">" : ""}
-            </CoreListItem_Right>
-        </CoreListItem>
-    );
-}
+import { CoreListItem, CoreListItem_Left, ListItem } from "./ListItem";
 
 interface ListItem_TokenEditorProps {
     tokenWrapper: TokenWrapper
@@ -72,15 +16,11 @@ function ListItem_TokenEditor(props: React.PropsWithChildren<ListItem_TokenEdito
         tw.symbol = tokenSymbol;
     }, [tokenSymbol]);
 
-    // focus:outline-none
     return (
         <CoreListItem>
             <div className="flex flex-row">
                 <div className="flex-1 grow float-left">
-                    <input className="" type="text" placeholder="Token symbol" value={tokenSymbol} onChange={e => setTokenSymbol(e.target.value)}></input>
-                    {/* <div className="text-sm text-gray-600">
-                        Error text could go here
-                    </div> */}
+                    <input className="focus:outline-none" type="text" placeholder="Token symbol" value={tokenSymbol} onChange={e => setTokenSymbol(e.target.value)}></input>
                 </div>
                 <button className="flex-0 float-right rounded-full mx-2 px-2 block aspect-square bg-red-500 text-center text-white align-middle" onClick={() => props.removeFunc(tw)}>x</button>
             </div>
