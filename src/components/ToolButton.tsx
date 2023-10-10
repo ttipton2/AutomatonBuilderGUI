@@ -1,6 +1,7 @@
 import { Tool } from "../Tool"
 
 interface ToolButtonProps {
+    title?: string,
     tool: Tool
     currentTool: Tool
     setCurrentTool: React.Dispatch<React.SetStateAction<Tool>>
@@ -18,5 +19,5 @@ export default function ToolButton(props: React.PropsWithChildren<ToolButtonProp
 
     function setToolToThis() { props.setCurrentTool(props.tool); }
 
-    return <button id="states-button" className={classes} onClick={setToolToThis}>{props.children}</button>
+    return <button id="states-button" className={classes} onClick={setToolToThis} title={props.title}>{props.children}</button>
 }
