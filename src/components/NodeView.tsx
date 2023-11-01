@@ -12,5 +12,5 @@ export default function NodeView(props: React.PropsWithChildren<NodeViewProps>) 
     // but the Konva objects themselves should also probably be recolored, and
     // I'm not sure how to do that yet. So the canvas itself will need to remain
     // light for now.
-    return (<div className="z-0 absolute left-0 top-0" id="graphics-container"></div>);
+    return (<div className="z-0 absolute left-0 top-0 dark:bg-neutral-900" id="graphics-container"></div>);
 }

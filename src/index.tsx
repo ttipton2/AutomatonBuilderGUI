@@ -60,7 +60,13 @@ function App() {
     const openConfigWindow = () => { setConfigWindowOpen(true); };
     const closeConfigWindow = () => { setConfigWindowOpen(false); };
 
-    return (<>
+    const [useDarkMode, setDarkMode] = useState(false);
+    const toggleDarkMode = () => { setDarkMode(!useDarkMode); };
+    useEffect(() => {
+        StateManager.useDarkMode = useDarkMode;
+    }, [useDarkMode]);
+
+    return (<div className={useDarkMode ? 'dark' : ''}>
         <NodeView />
         <div className='flex flex-row h-screen text-center'>
             <FloatingPanel heightPolicy='min'>
@@ -70,6 +76,7 @@ function App() {
                     setStartNode={setStartNode}
                 />
                 <button className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center" onClick={openConfigWindow}>Configure</button>
+                <button className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center" onClick={toggleDarkMode}>Dark Mode</button>
             </FloatingPanel>
             <FloatingPanel heightPolicy='min'>
                 <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
@@ -78,7 +85,7 @@ function App() {
 
         {configWindowOpen ? <ClosableModalWindow title='Configure Automaton' close={closeConfigWindow}><ConfigureAutomatonWindow /></ClosableModalWindow> : <></>}
 
-    </>
+    </div>
     );
 }
 

@@ -53,8 +53,8 @@ export default class NodeWrapper extends SelectableObject {
       x: 0,
       y: 0,
       radius: NodeWrapper.NodeRadius,
-      fill: 'white',
-      stroke: NodeWrapper.StrokeColor,
+      fill: StateManager.colorScheme.nodeFill,
+      stroke: StateManager.colorScheme.nodeStrokeColor,
       strokeWidth: NodeWrapper.StrokeWidth
     });
 
@@ -63,7 +63,7 @@ export default class NodeWrapper extends SelectableObject {
       y: 0,
       radius: NodeWrapper.NodeRadius * 0.8,
       fill: 'transparent',
-      stroke: 'black',
+      stroke: StateManager.colorScheme.nodeAcceptStrokeColor,
       strokeWidth: 1.5,
       visible: this._isAcceptNode
     });
@@ -77,7 +77,7 @@ export default class NodeWrapper extends SelectableObject {
       verticalAlign: 'middle',
       text: this._labelText,
       fontSize: 20,
-      fill: 'black',
+      fill: StateManager.colorScheme.nodeLabelColor,
     });
 
     this.nodeGroup.add(this.nodeBackground);
@@ -108,12 +108,12 @@ export default class NodeWrapper extends SelectableObject {
   }
 
   public select() {
-    this.nodeBackground.stroke(NodeWrapper.SelectedStrokeColor);
+    this.nodeBackground.stroke(StateManager.colorScheme.selectedNodeStrokeColor);
     this.nodeBackground.strokeWidth(NodeWrapper.SelectedStrokeWidth);
   }
 
   public deselect() {
-    this.nodeBackground.stroke(NodeWrapper.StrokeColor);
+    this.nodeBackground.stroke(StateManager.colorScheme.nodeStrokeColor);
     this.nodeBackground.strokeWidth(NodeWrapper.StrokeWidth);
   }
 
@@ -142,10 +142,10 @@ export default class NodeWrapper extends SelectableObject {
 
 
   public enableNewConnectionGlow() {
-    this.nodeBackground.shadowColor('#2FDFFB');
+    this.nodeBackground.shadowColor(StateManager.colorScheme.newConnectionGlowColor);
     this.nodeBackground.shadowOffset({ x: 0, y: 0 });
-    this.nodeBackground.shadowOpacity(1);
-    this.nodeBackground.shadowBlur(10);
+    this.nodeBackground.shadowOpacity(StateManager.colorScheme.newConnectionShadowOpacity);
+    this.nodeBackground.shadowBlur(StateManager.colorScheme.newConnectionShadowBlur);
     this.nodeBackground.shadowEnabled(true);
   }
 
@@ -154,10 +154,10 @@ export default class NodeWrapper extends SelectableObject {
   }
 
   public enableDragDropShadow() {
-    this.nodeBackground.shadowColor('#000000');
+    this.nodeBackground.shadowColor(StateManager.colorScheme.nodeDragDropShadowColor);
     this.nodeBackground.shadowOffset({ x: 0, y: 3 });
-    this.nodeBackground.shadowOpacity(0.2);
-    this.nodeBackground.shadowBlur(10);
+    this.nodeBackground.shadowOpacity(StateManager.colorScheme.nodeDragDropShadowOpacity);
+    this.nodeBackground.shadowBlur(StateManager.colorScheme.nodeDragDropShadowBlur);
     this.nodeBackground.shadowEnabled(true);
   }
 
@@ -250,5 +250,14 @@ export default class NodeWrapper extends SelectableObject {
   public set labelText(value: string) {
     this._labelText = value;
     this.nodeLabel.text(this._labelText);
+  }
+
+  public updateColorScheme() {
+    this.nodeBackground.fill(StateManager.colorScheme.nodeFill);
+
+    
+    this.nodeBackground.stroke(StateManager.colorScheme.nodeStrokeColor);
+    this.nodeAcceptCircle.stroke(StateManager.colorScheme.nodeAcceptStrokeColor);
+    this.nodeLabel.fill(StateManager.colorScheme.nodeLabelColor);
   }
 }

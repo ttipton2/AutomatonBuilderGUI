@@ -46,8 +46,8 @@ export default class TransitionWrapper extends SelectableObject {
             x: 0,
             y: 0,
             points: [0, 0, 0, 0],
-            stroke: TransitionWrapper.ArrowColor,
-            fill: TransitionWrapper.ArrowColor,
+            stroke: StateManager.colorScheme.transitionArrowColor,
+            fill: StateManager.colorScheme.transitionArrowColor,
             strokeWidth: 5,
             lineJoin: 'round',
             pointerLength: 10,
@@ -68,7 +68,7 @@ export default class TransitionWrapper extends SelectableObject {
             verticalAlign: 'middle',
             text: 'label here',
             fontSize: 20,
-            fill: 'green',
+            fill: StateManager.colorScheme.transitionLabelColor,
         });
 
         this.konvaGroup.add(this.arrowObject);
@@ -183,13 +183,13 @@ export default class TransitionWrapper extends SelectableObject {
     }
 
     public select(): void {
-        this.arrowObject.fill(TransitionWrapper.SelectedArrowColor);
-        this.arrowObject.stroke(TransitionWrapper.SelectedArrowColor);
+        this.arrowObject.fill(StateManager.colorScheme.transitionSelectedArrowColor);
+        this.arrowObject.stroke(StateManager.colorScheme.transitionSelectedArrowColor);
     }
 
     public deselect(): void {
-        this.arrowObject.fill(TransitionWrapper.ArrowColor);
-        this.arrowObject.stroke(TransitionWrapper.ArrowColor);
+        this.arrowObject.fill(StateManager.colorScheme.transitionArrowColor);
+        this.arrowObject.stroke(StateManager.colorScheme.transitionArrowColor);
     }
 
     public konvaObject(): Konva.Node {
@@ -231,5 +231,11 @@ export default class TransitionWrapper extends SelectableObject {
             isEpsilonTransition: this.isEpsilonTransition,
             tokens: Array.from(this._tokens.values()).map(tok => tok.id)
         };
+    }
+
+    public updateColorScheme() {
+        this.arrowObject.fill(StateManager.colorScheme.transitionArrowColor);
+        this.arrowObject.stroke(StateManager.colorScheme.transitionArrowColor);
+        this.labelObject.fill(StateManager.colorScheme.transitionLabelColor);
     }
 }
