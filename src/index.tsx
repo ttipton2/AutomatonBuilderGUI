@@ -9,7 +9,7 @@ import SelectableObject from './SelectableObject';
 import DetailsBox from './components/DetailsBox/DetailsBox';
 import ModalWindow, { ClosableModalWindow } from './components/ModalWindow';
 import ConfigureAutomatonWindow from './components/ConfigureAutomatonWindow';
-import { BsGearFill } from 'react-icons/bs';
+import { BsGearFill, BsMoonFill } from 'react-icons/bs';
 
 function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -80,6 +80,12 @@ function App() {
                     <div className='flex flex-row items-center place-content-center mx-2'>
                         <BsGearFill className='mr-1' />
                         Configure Automaton
+                    </div>
+                </button>
+                <button className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center" onClick={toggleDarkMode}>
+                    <div className='flex flex-row items-center place-content-center mx-2'>
+                        <BsMoonFill className='mr-1' />
+                        Dark Mode
                     </div>
                 </button>
             </FloatingPanel>
