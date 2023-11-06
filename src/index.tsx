@@ -9,7 +9,7 @@ import SelectableObject from './SelectableObject';
 import DetailsBox from './components/DetailsBox/DetailsBox';
 import ModalWindow, { ClosableModalWindow } from './components/ModalWindow';
 import ConfigureAutomatonWindow from './components/ConfigureAutomatonWindow';
-import { BsGearFill } from 'react-icons/bs';
+import { BsGearFill, BsMoonFill } from 'react-icons/bs';
 
 function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -61,7 +61,13 @@ function App() {
     const openConfigWindow = () => { setConfigWindowOpen(true); };
     const closeConfigWindow = () => { setConfigWindowOpen(false); };
 
-    return (<>
+    const [useDarkMode, setDarkMode] = useState(false);
+    const toggleDarkMode = () => { setDarkMode(!useDarkMode); };
+    useEffect(() => {
+        StateManager.useDarkMode = useDarkMode;
+    }, [useDarkMode]);
+
+    return (<div className={useDarkMode ? 'dark' : ''}>
         <NodeView />
         <div className='flex flex-row h-screen text-center'>
             <FloatingPanel heightPolicy='min'>
@@ -76,6 +82,12 @@ function App() {
                         Configure Automaton
                     </div>
                 </button>
+                <button className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center" onClick={toggleDarkMode}>
+                    <div className='flex flex-row items-center place-content-center mx-2'>
+                        <BsMoonFill className='mr-1' />
+                        Dark Mode
+                    </div>
+                </button>
             </FloatingPanel>
             <FloatingPanel heightPolicy='min'>
                 <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
@@ -84,7 +96,7 @@ function App() {
 
         {configWindowOpen ? <ClosableModalWindow title='Configure Automaton' close={closeConfigWindow}><ConfigureAutomatonWindow /></ClosableModalWindow> : <></>}
 
-    </>
+    </div>
     );
 }
 

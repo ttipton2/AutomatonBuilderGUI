@@ -21,7 +21,7 @@ function ListItem_TokenEditor(props: React.PropsWithChildren<ListItem_TokenEdito
         <CoreListItem>
             <div className="flex flex-row">
                 <div className="flex-1 grow float-left">
-                    <input className="focus:outline-none" type="text" placeholder="Token symbol" value={tokenSymbol} onChange={e => setTokenSymbol(e.target.value)}></input>
+                    <input className="focus:outline-none bg-transparent" type="text" placeholder="Token symbol" value={tokenSymbol} onChange={e => setTokenSymbol(e.target.value)}></input>
                 </div>
                 <button className="flex-0 float-right px-2 block text-center text-red-500 align-middle" onClick={() => props.removeFunc(tw)}>
                     <BsXCircleFill />
@@ -63,7 +63,7 @@ function AlphabetList() {
             {tokenWrapperElements}
             <CoreListItem>
                 <CoreListItem_Left>
-                    <button className="text-blue-500 flex flex-row items-center" onClick={addTokenToAlphabet}>
+                    <button className="text-blue-500 dark:text-blue-400 flex flex-row items-center" onClick={addTokenToAlphabet}>
                         <BsPlusCircleFill className="mr-1"/>
                         Add Token
                     </button>
@@ -74,7 +74,7 @@ function AlphabetList() {
 }
 export default function ConfigureAutomatonWindow() {
     const faTypeSelector = (
-        <select name="automaton-type" id="automaton-type" className="float-right align-bottom">
+        <select name="automaton-type" id="automaton-type" className="float-right align-bottom dark:text-black">
             <option value="dfa">DFA</option>
             <option value="nfa">NFA</option>
         </select>

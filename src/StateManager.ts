@@ -5,6 +5,7 @@ import TransitionWrapper from "./TransitionWrapper";
 import SelectableObject from "./SelectableObject";
 import TokenWrapper from "./TokenWrapper";
 import { ChangeEvent, ChangeEventHandler } from "react";
+import { LightColorScheme, DarkColorScheme, ColorScheme } from "./ColorSchemes";
 
 export default class StateManager {
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
@@ -28,6 +29,17 @@ export default class StateManager {
     private static _transitionLayer: Konva.Layer | null = null;
 
     public static setSelectedObjects: React.Dispatch<React.SetStateAction<SelectableObject[]>> | null = null;
+
+    private static _useDarkMode: boolean = false;
+
+    public static get colorScheme() {
+        if (this._useDarkMode) {
+            return DarkColorScheme;
+        }
+        else {
+            return LightColorScheme;
+        }
+    }
 
     private constructor() {
     }
@@ -376,6 +388,28 @@ export default class StateManager {
 
         this._stage.draw();
         console.log('all loaded!');
+    }
+
+    public static set useDarkMode(val: boolean) {
+        // Save new value
+        this._useDarkMode = val;
+
+        this._nodeWrappers.forEach(n => n.updateColorScheme());
+        this._transitionWrappers.forEach(t => t.updateColorScheme());
+
+        // We need to re-trigger the "selected object" drawing code
+        // for selected objects
+        this._selectedObjects.forEach(o => o.select());
+
+        this._startStateLine.fill(this.colorScheme.transitionArrowColor);
+        this._startStateLine.stroke(this.colorScheme.transitionArrowColor);
+
+        this._tentConnectionLine.fill(this.colorScheme.tentativeTransitionArrowColor);
+        this._tentConnectionLine.stroke(this.colorScheme.tentativeTransitionArrowColor);
+    }
+
+    public static get useDarkMode() {
+        return this._useDarkMode;
     }
 }
 
