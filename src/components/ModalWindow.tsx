@@ -1,3 +1,4 @@
+import { BsXLg } from "react-icons/bs";
 
 interface ClosableModalWindowProps {
     title?: string,
@@ -14,7 +15,7 @@ export function ClosableModalWindow(props: React.PropsWithChildren<ClosableModal
                     </div>
                 </div>
                 <button className="float-right" onClick={props.close}>
-                    X
+                    <BsXLg />
                 </button>
             </div>
             {props.children}

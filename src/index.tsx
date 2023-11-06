@@ -9,6 +9,7 @@ import SelectableObject from './SelectableObject';
 import DetailsBox from './components/DetailsBox/DetailsBox';
 import ModalWindow, { ClosableModalWindow } from './components/ModalWindow';
 import ConfigureAutomatonWindow from './components/ConfigureAutomatonWindow';
+import { BsGearFill } from 'react-icons/bs';
 
 function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -75,8 +76,12 @@ function App() {
                     startNode={startNode}
                     setStartNode={setStartNode}
                 />
-                <button className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center" onClick={openConfigWindow}>Configure</button>
-                <button className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center" onClick={toggleDarkMode}>Dark Mode</button>
+                <button className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center" onClick={openConfigWindow}>
+                    <div className='flex flex-row items-center place-content-center mx-2'>
+                        <BsGearFill className='mr-1' />
+                        Configure Automaton
+                    </div>
+                </button>
             </FloatingPanel>
             <FloatingPanel heightPolicy='min'>
                 <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />

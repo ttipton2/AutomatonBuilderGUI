@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import TokenWrapper from "../TokenWrapper";
 import StateManager from "../StateManager";
 import { CoreListItem, CoreListItem_Left, ListItem } from "./ListItem";
+import { BsPlusCircleFill, BsXCircleFill } from "react-icons/bs";
 
 interface ListItem_TokenEditorProps {
     tokenWrapper: TokenWrapper
@@ -22,7 +23,9 @@ function ListItem_TokenEditor(props: React.PropsWithChildren<ListItem_TokenEdito
                 <div className="flex-1 grow float-left">
                     <input className="focus:outline-none bg-transparent" type="text" placeholder="Token symbol" value={tokenSymbol} onChange={e => setTokenSymbol(e.target.value)}></input>
                 </div>
-                <button className="flex-0 float-right rounded-full mx-2 px-2 block aspect-square bg-red-500 text-center text-white align-middle" onClick={() => props.removeFunc(tw)}>x</button>
+                <button className="flex-0 float-right px-2 block text-center text-red-500 align-middle" onClick={() => props.removeFunc(tw)}>
+                    <BsXCircleFill />
+                </button>
             </div>
 
         </CoreListItem>
@@ -60,7 +63,10 @@ function AlphabetList() {
             {tokenWrapperElements}
             <CoreListItem>
                 <CoreListItem_Left>
-                    <button className="text-blue-500 dark:text-blue-400" onClick={addTokenToAlphabet}>+ Add Token</button>
+                    <button className="text-blue-500 dark:text-blue-400 flex flex-row items-center" onClick={addTokenToAlphabet}>
+                        <BsPlusCircleFill className="mr-1"/>
+                        Add Token
+                    </button>
                 </CoreListItem_Left>
             </CoreListItem>
         </div>
