@@ -16,6 +16,7 @@ export default class StateManager {
     private static _alphabet: Array<TokenWrapper> = [];
 
     private static _selectedObjects: Array<SelectableObject> = [];
+    private static _transitions: Array<TransitionWrapper> = [];
 
     private static _tentativeTransitionSource: NodeWrapper | null = null;
     private static _tentativeTransitionTarget: NodeWrapper | null = null;
@@ -48,6 +49,7 @@ export default class StateManager {
         this._startNode = null;
         this._nodeWrappers = [];
         this._transitionWrappers = [];
+        this._transitions = [];
 
         Konva.hitOnDragEnabled = true;
 
@@ -99,6 +101,10 @@ export default class StateManager {
 
         addEventListener('keydown', this.onKeyDown);
     }
+    public static get transitions(): Array<TransitionWrapper> {
+        return StateManager._transitions;
+      }
+    
 
     public static get currentTool() {
         return StateManager._currentTool;
@@ -137,6 +143,10 @@ export default class StateManager {
             StateManager.startNode = newStateWrapper;
         }
     }
+
+    public static addTransition(transition: TransitionWrapper) {
+        StateManager._transitions.push(transition);
+      }
 
     public static set startNode(node: NodeWrapper | null) {
         if (StateManager._startNode) {
@@ -367,7 +377,8 @@ export default class StateManager {
             const isEpsilonTransition = trans.isEpsilonTransition;
             const tokens = trans.tokens.map(tokID => StateManager._alphabet.find(tok => tok.id === tokID));
             const newTrans = new TransitionWrapper(src, dest, isEpsilonTransition, tokens);
-
+            
+            StateManager._transitions.push(newTrans);
             StateManager._transitionWrappers.push(newTrans);
             StateManager._transitionLayer.add(newTrans.konvaGroup);
         })

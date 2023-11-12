@@ -138,34 +138,71 @@ export default class TransitionWrapper extends SelectableObject {
         let srcPos = this._sourceNode.nodeGroup.position();
         let dstPos = this._destNode.nodeGroup.position();
 
-        let xDestRelativeToSrc = dstPos.x - srcPos.x;
-        let yDestRelativeToSrc = dstPos.y - srcPos.y;
+        // Logic to check if there are already transitions between the same two states
+        // and curves one of the transition lines to make it easier to see.
 
-        let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
+        // Check if there are other transitions between the same nodes
+        const otherTransitions = StateManager.transitions.filter((t: this) =>
+            t !== this &&
+            (t.sourceNode === this._sourceNode && t.destNode === this._destNode) ||
+            (t.sourceNode === this._destNode && t.destNode === this._sourceNode)
+        );
 
-        let newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
-        let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
-        let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
+        if (otherTransitions.length > 0) {
+            // Use Bézier curve for curved arrow
+            const controlPointX = (srcPos.x + dstPos.x) / 2;
+            const controlPointY = (srcPos.y + dstPos.y) / 2 - 50; // You may need to adjust this value
+    
+            this.arrowObject.points([
+                srcPos.x,
+                srcPos.y,
+                controlPointX,
+                controlPointY,
+                dstPos.x,
+                dstPos.y
+            ]);
+    
+            this.arrowObject.tension(0.5); // Experiment with tension value
+    
+            // calculate center of transition line, for label
+            const xCenter = (srcPos.x + dstPos.x) / 2;
+            const yCenter = (srcPos.y + dstPos.y) / 2;
+            this.labelObject.x(xCenter);
+            this.labelObject.y(yCenter);
+    
+            this.labelCenterDebugObject.position({ x: xCenter, y: yCenter });
+        } 
+        else {        
 
-        this.arrowObject.points([
-            srcPos.x,
-            srcPos.y,
-            dstPos.x - xUnitTowardsSrc,
-            dstPos.y - yUnitTowardsSrc
-        ]);
+            let xDestRelativeToSrc = dstPos.x - srcPos.x;
+            let yDestRelativeToSrc = dstPos.y - srcPos.y;
 
-        this.arrowObject.tension(0);
+            let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
 
-        // calculate center of transition line, for label
-        const xAvg = ((srcPos.x + xUnitTowardsSrc) + (dstPos.x - xUnitTowardsSrc)) / 2;
-        const yAvg = ((srcPos.y + yUnitTowardsSrc) + (dstPos.y - yUnitTowardsSrc)) / 2;
+            let newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
+            let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
+            let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
 
-        const xCenter = xAvg;// - this.labelObject.getTextWidth() / 2;
-        const yCenter = yAvg;
-        this.labelObject.x(xCenter);
-        this.labelObject.y(yCenter);
+            this.arrowObject.points([
+                srcPos.x,
+                srcPos.y,
+                dstPos.x - xUnitTowardsSrc,
+                dstPos.y - yUnitTowardsSrc
+            ]);
 
-        this.labelCenterDebugObject.position({x: xCenter, y: yCenter});
+            this.arrowObject.tension(0);
+
+            // calculate center of transition line, for label
+            const xAvg = ((srcPos.x + xUnitTowardsSrc) + (dstPos.x - xUnitTowardsSrc)) / 2;
+            const yAvg = ((srcPos.y + yUnitTowardsSrc) + (dstPos.y - yUnitTowardsSrc)) / 2;
+
+            const xCenter = xAvg;// - this.labelObject.getTextWidth() / 2;
+            const yCenter = yAvg;
+            this.labelObject.x(xCenter);
+            this.labelObject.y(yCenter);
+
+            this.labelCenterDebugObject.position({x: xCenter, y: yCenter});
+        }
     }
 
     public involvesNode(node: NodeWrapper): boolean {
