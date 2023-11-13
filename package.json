@@ -4,9 +4,10 @@
   "description": "",
   "private": true,
   "scripts": {
-    "build": "webpack && npm run build:tailwind && npm run build:cp-public",
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && webpack && npm run build:tailwind && npm run build:cp-public",  
     "build:tailwind": "npx tailwindcss -i ./public/input.css -o ./dist/output.css",
-    "build:cp-public": "cp ./public/** ./dist",
+    "build:cp-public": "ncp ./public ./dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,6 +17,8 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@types/uuid": "^9.0.4",
+    "ncp": "^2.0.0",
+    "rimraf": "^5.0.5",
     "ts-loader": "^9.4.4",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",

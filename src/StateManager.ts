@@ -51,6 +51,8 @@ export default class StateManager {
         this._transitionWrappers = [];
         this._transitions = [];
 
+        console.log('transitions array initialized')
+
         Konva.hitOnDragEnabled = true;
 
         this._stage = new Konva.Stage({
@@ -102,6 +104,7 @@ export default class StateManager {
         addEventListener('keydown', this.onKeyDown);
     }
     public static get transitions(): Array<TransitionWrapper> {
+        console.log("inside get transitions");
         return StateManager._transitions;
       }
     
@@ -145,6 +148,7 @@ export default class StateManager {
     }
 
     public static addTransition(transition: TransitionWrapper) {
+        console.log('Adding transition to the array');
         StateManager._transitions.push(transition);
       }
 

@@ -33,6 +33,7 @@ export default class TransitionWrapper extends SelectableObject {
     }
 
     constructor(sourceNode: NodeWrapper, destNode: NodeWrapper, isEpsilonTransition: boolean | null = null, tokens: Array<TokenWrapper> | Set<TokenWrapper> | null = null) {
+        console.log('inside the constructor');
         super();
         this._id = uuidv4();
         this._sourceNode = sourceNode;
@@ -93,13 +94,15 @@ export default class TransitionWrapper extends SelectableObject {
     }
 
     public updatePoints() {
+        console.log('update points');
         this.resetLabel();
-
+        console.log('update points2');
         // If source node and destination node are the same,
         // then the transition arrow should not do its usual thing.
         // Instead, it should loop up and around
         if (this._sourceNode == this._destNode) {
-            console.log('source node and dest node are the same!')
+            console.log('source node and dest node are the same! extra stuff test')
+            console.log('the logs Im inserting are working')
             let srcPos = this._sourceNode.nodeGroup.position();
             const ANGLE = 60.0 * (Math.PI / 180.0);
             const DIST = 30;
@@ -132,7 +135,7 @@ export default class TransitionWrapper extends SelectableObject {
 
             return;
         }
-
+        console.log('update points3');
         // The source and destination are different, so draw the
         // arrow from one to the other.
         let srcPos = this._sourceNode.nodeGroup.position();
@@ -142,13 +145,26 @@ export default class TransitionWrapper extends SelectableObject {
         // and curves one of the transition lines to make it easier to see.
 
         // Check if there are other transitions between the same nodes
-        const otherTransitions = StateManager.transitions.filter((t: this) =>
-            t !== this &&
-            (t.sourceNode === this._sourceNode && t.destNode === this._destNode) ||
-            (t.sourceNode === this._destNode && t.destNode === this._sourceNode)
-        );
+        const otherTransitions = StateManager.transitions.filter((t: this) => {
+            const condition =
+                t !== this &&
+                ((t.sourceNode === this._sourceNode && t.destNode === this._destNode) ||
+                 (t.sourceNode === this._destNode && t.destNode === this._sourceNode));
+        
+            console.log('Condition:', condition);
+            console.log('t.sourceNode:', t.sourceNode);
+            console.log('t.destNode:', t.destNode);
+            console.log('this._sourceNode:', this._sourceNode);
+            console.log('this._destNode:', this._destNode);
+            console.log('otherTransitions:', otherTransitions);
+        
+            return condition;
+        });
+
+        
 
         if (otherTransitions.length > 0) {
+            console.log('Curved arrow logic executed!');
             // Use Bézier curve for curved arrow
             const controlPointX = (srcPos.x + dstPos.x) / 2;
             const controlPointY = (srcPos.y + dstPos.y) / 2 - 50; // You may need to adjust this value
