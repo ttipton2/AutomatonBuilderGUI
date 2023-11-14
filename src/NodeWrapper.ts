@@ -69,14 +69,14 @@ export default class NodeWrapper extends SelectableObject {
     });
 
     this.nodeLabel = new Konva.Text({
-      x: -NodeWrapper.NodeRadius,
-      y: -NodeWrapper.NodeRadius,
-      width: NodeWrapper.NodeRadius * 2,
-      height: NodeWrapper.NodeRadius * 2,
+      x: (-NodeWrapper.NodeRadius * 2 * 0.75) / 2,
+      y: (-NodeWrapper.NodeRadius * 2 * 0.75) / 2,
+      width: NodeWrapper.NodeRadius * 2 * 0.75,
+      height: NodeWrapper.NodeRadius * 2 * 0.75,
       align: 'center',
       verticalAlign: 'middle',
       text: this._labelText,
-      fontSize: 20,
+      fontSize: 15,
       fill: StateManager.colorScheme.nodeLabelColor,
     });
 
@@ -97,6 +97,44 @@ export default class NodeWrapper extends SelectableObject {
     this.nodeGroup.on('dragend', (ev) => this.onDragEnd.call(this, ev));
   }
 
+  public adjustFontSize() {
+    const maxTextWidth = NodeWrapper.NodeRadius * 2 * 0.75; // 75% of the diameter (inner circle is 80% of diameter)
+    let fontSize = this.nodeLabel.fontSize();
+    
+    const tempText = new Konva.Text({
+      text: this._labelText,
+      fontSize: fontSize,
+    });
+  
+    // measure text width with current font size
+    let textWidth = tempText.getClientRect().width;
+
+    if (textWidth > maxTextWidth && fontSize > 10) 
+    {
+      while (textWidth > maxTextWidth && fontSize > 10) 
+      { // minimum font size is 10
+        fontSize -= 1; // decrement font size
+        tempText.fontSize(fontSize); // update tempText font size
+        textWidth = tempText.getClientRect().width; // remeasure text width with new font size
+      }
+    } 
+    else if (textWidth < maxTextWidth && fontSize < 15) 
+    {
+      // Increase font size until the text fits within the maximum width
+      while (textWidth < maxTextWidth && fontSize < 15) 
+      { 
+        fontSize += 1; // increment font size
+        tempText.fontSize(fontSize); 
+        textWidth = tempText.getClientRect().width; 
+      }
+    }
+
+    this.nodeLabel.fontSize(fontSize);
+    this.nodeLabel.wrap('word');
+    this.nodeLabel.align('center');
+    this.nodeLabel.verticalAlign('middle');
+  }
+  
   public onClick(ev: Konva.KonvaEventObject<MouseEvent>) {
     if (StateManager.currentTool === Tool.Select) {
       // If shift isn't being held, then clear all previous selection
@@ -250,6 +288,7 @@ export default class NodeWrapper extends SelectableObject {
   public set labelText(value: string) {
     this._labelText = value;
     this.nodeLabel.text(this._labelText);
+    this.adjustFontSize();
   }
 
   public updateColorScheme() {
