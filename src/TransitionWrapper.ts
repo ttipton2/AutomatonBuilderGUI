@@ -101,8 +101,7 @@ export default class TransitionWrapper extends SelectableObject {
         // then the transition arrow should not do its usual thing.
         // Instead, it should loop up and around
         if (this._sourceNode == this._destNode) {
-            console.log('source node and dest node are the same! extra stuff test')
-            console.log('the logs Im inserting are working')
+            console.log('source node and dest node are the same!')
             let srcPos = this._sourceNode.nodeGroup.position();
             const ANGLE = 60.0 * (Math.PI / 180.0);
             const DIST = 30;
@@ -135,7 +134,7 @@ export default class TransitionWrapper extends SelectableObject {
 
             return;
         }
-        console.log('update points3');
+
         // The source and destination are different, so draw the
         // arrow from one to the other.
         let srcPos = this._sourceNode.nodeGroup.position();
@@ -145,48 +144,40 @@ export default class TransitionWrapper extends SelectableObject {
         // and curves one of the transition lines to make it easier to see.
 
         // Check if there are other transitions between the same nodes
-        const otherTransitions = StateManager.transitions.filter((t: this) => {
-            const condition =
-                t !== this &&
-                ((t.sourceNode === this._sourceNode && t.destNode === this._destNode) ||
-                 (t.sourceNode === this._destNode && t.destNode === this._sourceNode));
-        
-            console.log('Condition:', condition);
-            console.log('t.sourceNode:', t.sourceNode);
-            console.log('t.destNode:', t.destNode);
-            console.log('this._sourceNode:', this._sourceNode);
-            console.log('this._destNode:', this._destNode);
-            console.log('otherTransitions:', otherTransitions);
-        
-            return condition;
+        const sourceNodeId = this._sourceNode.id;
+        const destNodeId = this._destNode.id;
+
+        const otherTransitions = StateManager.transitions.filter((t: TransitionWrapper) => {
+            const tSourceId = t.sourceNode.id;
+            const tDestId = t.destNode.id;
+
+            return (t !== this && ((tSourceId === sourceNodeId && tDestId === destNodeId) ||
+                               (tSourceId === destNodeId && tDestId === sourceNodeId)));
         });
 
         
+        console.log('other transitions is', otherTransitions.length);
 
         if (otherTransitions.length > 0) {
             console.log('Curved arrow logic executed!');
             // Use Bézier curve for curved arrow
             const controlPointX = (srcPos.x + dstPos.x) / 2;
             const controlPointY = (srcPos.y + dstPos.y) / 2 - 50; // You may need to adjust this value
-    
-            this.arrowObject.points([
-                srcPos.x,
-                srcPos.y,
-                controlPointX,
-                controlPointY,
-                dstPos.x,
-                dstPos.y
-            ]);
+            const midX = (srcPos.x + dstPos.x) / 2;
+            const midY = (srcPos.y + dstPos.y) / 2;
+            const endX = dstPos.x; // x-coordinate for the end of the arrow
+            const endY = dstPos.y; // y-coordinate for the end of the arrow
+
+
+            this.arrowObject.points([srcPos.x, srcPos.y, controlPointX, controlPointY, endX, endY]);
     
             this.arrowObject.tension(0.5); // Experiment with tension value
     
-            // calculate center of transition line, for label
-            const xCenter = (srcPos.x + dstPos.x) / 2;
-            const yCenter = (srcPos.y + dstPos.y) / 2;
-            this.labelObject.x(xCenter);
-            this.labelObject.y(yCenter);
-    
-            this.labelCenterDebugObject.position({ x: xCenter, y: yCenter });
+            // Update label position to be centered over the curve
+            this.labelObject.x(midX);
+            this.labelObject.y(midY - 25); // Adjust as needed
+
+            this.labelCenterDebugObject.position({ x: midX, y: midY - 25 });
         } 
         else {        
 

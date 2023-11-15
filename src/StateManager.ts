@@ -218,6 +218,7 @@ export default class StateManager {
         if (StateManager._tentativeTransitionSource !== null && StateManager.tentativeTransitionTarget !== null) {
             const newTransitionWrapper = new TransitionWrapper(StateManager._tentativeTransitionSource, StateManager._tentativeTransitionTarget);
             StateManager._transitionWrappers.push(newTransitionWrapper);
+            StateManager._transitions.push(newTransitionWrapper);
             StateManager._transitionLayer.add(newTransitionWrapper.konvaGroup);
             StateManager._transitionLayer.draw();
         }
