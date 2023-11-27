@@ -98,6 +98,15 @@ export default class StateManager {
         this._stage.add(this._nodeLayer);
 
         addEventListener('keydown', this.onKeyDown);
+        addEventListener('resize', this.handleResize);
+    }
+    //handles resizing the canvas when the window is resized using an event listener
+    private static handleResize() {
+        if (StateManager._stage) {
+            StateManager._stage.width(window.innerWidth);
+            StateManager._stage.height(window.innerHeight);
+            StateManager._stage.draw();
+        }
     }
 
     public static get currentTool() {
