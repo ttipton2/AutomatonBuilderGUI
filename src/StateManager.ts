@@ -108,7 +108,7 @@ export default class StateManager {
 
             const gridLayer = StateManager._stage.findOne('.gridLayer');
             if(gridLayer){
-                gridLayer.destroy;
+                gridLayer.destroy() ;
             }
             StateManager.drawGrid();
 
@@ -140,7 +140,7 @@ export default class StateManager {
             gridLayer.add(line);
         }
         StateManager._stage.add(gridLayer);
-        gridLayer.moveToBottom;
+        gridLayer.moveToBottom();
     }
 
     public static get currentTool() {
