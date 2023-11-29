@@ -121,8 +121,6 @@ export default class StateManager {
         const gridCellSize = 50;
         const verticalLineNum = 80
         const horizontalLineNum = 40
-        const width = window.innerWidth;
-        const height = window.innerHeight;
 
         for(let i = 0; i < verticalLineNum; i++){
             let line = new Konva.Line({
@@ -143,7 +141,6 @@ export default class StateManager {
         }
         StateManager._stage.add(gridLayer);
         gridLayer.moveToBottom;
-
     }
 
     public static get currentTool() {
