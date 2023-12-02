@@ -85,14 +85,13 @@ export default function ConfigureAutomatonWindow() {
     };
 
     return (
-        <div className="">
+        <div className="configure-automaton-container" style={{ width: '400px' }}>
             <div className="divide-y">
                 <ListItem
                     title="Automaton Type"
                     subtitle="An NFA will have fewer requirements than a DFA."
                     rightContent={faTypeSelector}
                 />
-
             </div>
             <AlphabetList />
         </div>
