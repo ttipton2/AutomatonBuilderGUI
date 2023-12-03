@@ -60,46 +60,55 @@ function App() {
     const [configWindowOpen, setConfigWindowOpen] = useState(false);
     const openConfigWindow = () => { setConfigWindowOpen(true); };
     const closeConfigWindow = () => { setConfigWindowOpen(false); };
-
     const [useDarkMode, setDarkMode] = useState(false);
     const toggleDarkMode = () => { setDarkMode(!useDarkMode); };
     useEffect(() => {
         StateManager.useDarkMode = useDarkMode;
     }, [useDarkMode]);
-
     return (<div className={useDarkMode ? 'dark' : ''}>
-        <NodeView />
-        <div className='flex flex-row h-screen text-center'>
-            <FloatingPanel heightPolicy='min'>
-                <DetailsBox
-                    selection={selectedObjects}
-                    startNode={startNode}
-                    setStartNode={setStartNode}
-                />
-                <button className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center" onClick={openConfigWindow}>
-                    <div className='flex flex-row items-center place-content-center mx-2'>
-                        <BsGearFill className='mr-1' />
-                        Configure Automaton
-                    </div>
-                </button>
-                <button className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center" onClick={toggleDarkMode}>
-                    <div className='flex flex-row items-center place-content-center mx-2'>
-                        <BsMoonFill className='mr-1' />
-                        Dark Mode
-                    </div>
-                </button>
-            </FloatingPanel>
-            <FloatingPanel heightPolicy='min'>
-                <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
-            </FloatingPanel>
+            <NodeView />
+            <div className='flex flex-row h-screen text-center'>
+                
+            <div>
+    {/* The following panel will have a fixed width of 300px */}
+    <FloatingPanel heightPolicy='min' style={{ width: '300px' }}>
+        <DetailsBox
+            selection={selectedObjects}
+            startNode={startNode}
+            setStartNode={setStartNode}
+        />
+        <div className="flex flex-col items-center mt-4">
+            <button
+                className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center"
+                onClick={openConfigWindow}
+            >
+                <div className='flex flex-row items-center place-content-center mx-2'>
+                    <BsGearFill className='mr-1' />
+                    Configure Automaton
+                </div>
+            </button>
+            <button  className="rounded-full p-2 m-1 mx-2 block bg-gray-500 text-white text-center" onClick={toggleDarkMode}>
+                <div className='flex flex-row items-center place-content-center mx-2'>
+                    <BsMoonFill className='mr-1' />
+                    Dark Mode
+                </div>
+            </button>
         </div>
+    </FloatingPanel>
 
-        {configWindowOpen ? <ClosableModalWindow title='Configure Automaton' close={closeConfigWindow}><ConfigureAutomatonWindow /></ClosableModalWindow> : <></>}
-
-    </div>
+    {/* More FloatingPanels as needed */}
+</div>
+               
+                <FloatingPanel heightPolicy='min'>
+                    <Toolbox currentTool={currentTool} setCurrentTool={setCurrentTool} />
+                </FloatingPanel>
+            </div>
+            {configWindowOpen ? <ClosableModalWindow title='Configure Automaton' close={closeConfigWindow}><ConfigureAutomatonWindow /></ClosableModalWindow> : <></>}
+            </div>
     );
 }
 
 const domNode = document.getElementById('react-root');
 const root = createRoot(domNode);
 root.render(<App />);
+
