@@ -85,7 +85,7 @@ export default function ConfigureAutomatonWindow() {
     };
 
     return (
-        <div className="configure-automaton-container" style={{ width: '400px' }}>
+        <div className="">
             <div className="divide-y">
                 <ListItem
                     title="Automaton Type"
