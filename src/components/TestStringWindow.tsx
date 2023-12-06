@@ -1,12 +1,33 @@
 import { useState } from "react";
 import { testStringOnAutomata } from "./TestStringOnAutomata";
 import { BsFillClipboardCheckFill } from "react-icons/bs";
+import DFA from 'automaton-kit/lib/dfa/DFA';
+import DFATransition from 'automaton-kit/lib/dfa/DFATransition';
+import DFAState from 'automaton-kit/lib/dfa/DFAState';
 
 export default function TestStringWindow() {
     const [testString, setTestString] = useState('');
+    const [result, setResult] = useState('');
+
+    //This is logic from the test code provided. In the future, we will need to connect
+    //the GUI to the functions so that the DFA creates itself as the user adds states and transitions.
+    let q0 = new DFAState();
+    let q1 = new DFAState();
+    let dfa = new DFA();
+    dfa.states = [q0, q1];  // Set (array) of states
+    dfa.inputAlphabet = ["a", "b"];  // Set (array) of input alphabet tokens
+    dfa.transitions = [  // Transition function (array of valid transitions)
+    new DFATransition(q0, "a", q1),
+    new DFATransition(q0, "b", q0),
+    new DFATransition(q1, "a", q1),
+    new DFATransition(q1, "b", q1)
+    ];
+    dfa.startState = q0;  // Single state that is the initial state
+    dfa.acceptStates = [q1];  // Set (array) of states that will cause it to accept
 
     const handleTestString = () => {
-        testStringOnAutomata(testString);
+        const testResult = testStringOnAutomata(dfa, testString);
+        setResult(testResult);
     };
 
     return (
@@ -26,6 +47,7 @@ export default function TestStringWindow() {
                     <BsFillClipboardCheckFill />
                 </button>
             </div>
+            {result && <div className="mt-4 text-lg font-semibold">{`Result: ${result}`}</div>}
             {/* This div creates extra space at the bottom */}
             <div className="flex-1"></div>
         </div>
