@@ -6,10 +6,17 @@ import SelectableObject from "./SelectableObject";
 import TokenWrapper from "./TokenWrapper";
 import { ChangeEvent, ChangeEventHandler } from "react";
 import { LightColorScheme, DarkColorScheme, ColorScheme } from "./ColorSchemes";
+import DFA from 'automaton-kit/lib/dfa/DFA';
+import DFATransition from 'automaton-kit/lib/dfa/DFATransition';
+import DFAState from 'automaton-kit/lib/dfa/DFAState';
 
 export default class StateManager {
+    
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
     private static _startNode: NodeWrapper | null = null;
+
+    private static _dfa: DFA | null = null; // add an actual dfa
+    private static _nextStateId = 0; // used to make unique states on the backend
 
     private static _nodeWrappers: Array<NodeWrapper> = [];
     private static _transitionWrappers: Array<TransitionWrapper> = [];
@@ -44,11 +51,16 @@ export default class StateManager {
     private constructor() {
     }
 
-    public static initialize() {
-        this._startNode = null;
-        this._nodeWrappers = [];
-        this._transitionWrappers = [];
+      public static initialize() {
+        if (!this._dfa) {
+            this._dfa = new DFA();  
+        }
 
+        // Initialize DFA properties, but load alphabet from localStorage
+        this._dfa.inputAlphabet = JSON.parse(localStorage.getItem('dfaAlphabet') || '[]');
+        this._dfa.states = this._dfa.states || [];
+        this._dfa.transitions = this._dfa.transitions || [];
+    
         Konva.hitOnDragEnabled = true;
 
         this._stage = new Konva.Stage({
@@ -99,6 +111,10 @@ export default class StateManager {
         StateManager.drawGrid();
         addEventListener('keydown', this.onKeyDown);
         addEventListener('resize', this.handleResize);
+        //clears the local storage when the browser refreshes
+        addEventListener('beforeunload', function() {
+            localStorage.clear();
+        });
     }
     //handles resizing the canvas when the window is resized using an event listener
     private static handleResize() {
@@ -167,6 +183,50 @@ export default class StateManager {
         }
     }
 
+    public static addState() {
+        const stateId = `q${StateManager._nextStateId++}`;
+        const newState = new DFAState(stateId);
+        StateManager._dfa.states.push(newState);
+        // Update the frontend representation as needed
+        // ...
+
+        return newState; // Returning the new state might be useful
+    }
+
+    public static renameState(oldName: string, newName: string) {
+        // Check if a state with the new name already exists
+        if (StateManager._dfa.states.some(state => state.label === newName)) {
+            console.error("State name already exists. Please choose a different name.");
+            return;
+        }
+    
+        // Find the state to rename based on the old name
+        const stateToRename = StateManager._dfa.states.find(state => state.label === oldName);
+        if (stateToRename) {
+            // Rename the state
+            stateToRename.label = newName;
+            // Update the frontend representation as needed
+            // ...
+        } else {
+            console.error("State not found.");
+        }
+    }
+
+    public static updateDfaAlphabet(tokenWrappers: TokenWrapper[]) {
+        if (this._dfa) {
+            this._dfa.inputAlphabet = tokenWrappers.map(token => token.symbol);
+            // Save the updated alphabet to localStorage
+            localStorage.setItem('dfaAlphabet', JSON.stringify(this._dfa.inputAlphabet));
+        }
+    }
+
+    public static get currentAlphabet(): TokenWrapper[] {
+        return this._dfa ? this._dfa.inputAlphabet.map(symbol => new TokenWrapper(symbol)) : [];
+    }
+
+
+    
+
     private static addStateAtDoubleClickPos(evt: Konva.KonvaEventObject<MouseEvent>) {
         const x = evt.evt.pageX;
         const y = evt.evt.pageY;
@@ -179,6 +239,9 @@ export default class StateManager {
         if (StateManager._startNode === null) {
             StateManager.startNode = newStateWrapper;
         }
+        StateManager.addState();
+        console.log(StateManager._dfa.states);
+        console.log(StateManager._dfa.states.map(state => state.label));
     }
 
     public static set startNode(node: NodeWrapper | null) {

@@ -33,14 +33,11 @@ function ListItem_TokenEditor(props: React.PropsWithChildren<ListItem_TokenEdito
 }
 
 function AlphabetList() {
-    // UNDERLYING IDEA HERE: Alphabet is stored in the React component's state.
-    // Whenever the React state variables are changed, push them to the StateManager.
-
-    const [alphabet, setAlphabet] = useState(StateManager.alphabet);
+    // Initialize the alphabet from the StateManager
+    const [alphabet, setAlphabet] = useState(StateManager.currentAlphabet);
 
     function addTokenToAlphabet() {
-        const newAlphabet = [...alphabet];
-        newAlphabet.push(new TokenWrapper());
+        const newAlphabet = [...alphabet, new TokenWrapper()];
         setAlphabet(newAlphabet);
     }
 
@@ -50,27 +47,31 @@ function AlphabetList() {
     }
 
     useEffect(() => {
-        StateManager.alphabet = alphabet;
+        // Update the StateManager's DFA alphabet whenever the component's alphabet state changes
+        StateManager.updateDfaAlphabet(alphabet);
+        console.log("Updated Alphabet:", alphabet.map(token => token.symbol));
     }, [alphabet]);
 
     const tokenWrapperElements = alphabet.map(tw => <ListItem_TokenEditor tokenWrapper={tw} removeFunc={removeTokenFromAlphabet} key={tw.id} />);
 
-    return (<>
-        <div className="mt-3 ml-1 mb-1">
-            Input Alphabet
-        </div>
-        <div className="divide-y">
-            {tokenWrapperElements}
-            <CoreListItem>
-                <CoreListItem_Left>
-                    <button className="text-blue-500 dark:text-blue-400 flex flex-row items-center" onClick={addTokenToAlphabet}>
-                        <BsPlusCircleFill className="mr-1"/>
-                        Add Token
-                    </button>
-                </CoreListItem_Left>
-            </CoreListItem>
-        </div>
-    </>);
+    return (
+        <>
+            <div className="mt-3 ml-1 mb-1">
+                Input Alphabet
+            </div>
+            <div className="divide-y">
+                {tokenWrapperElements}
+                <CoreListItem>
+                    <CoreListItem_Left>
+                        <button className="text-blue-500 dark:text-blue-400 flex flex-row items-center" onClick={addTokenToAlphabet}>
+                            <BsPlusCircleFill className="mr-1"/>
+                            Add Token
+                        </button>
+                    </CoreListItem_Left>
+                </CoreListItem>
+            </div>
+        </>
+    );
 }
 export default function ConfigureAutomatonWindow() {
     const faTypeSelector = (
@@ -96,4 +97,4 @@ export default function ConfigureAutomatonWindow() {
             <AlphabetList />
         </div>
     );
-}
+} 
