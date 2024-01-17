@@ -19,21 +19,29 @@ function DetailsBox_TransitionTokenCheckBox(props: DetailsBox_TransitionTokenChe
     const transition = props.transitionWrapper;
 
     const [tokenIsIncluded, setTokenIsIncluded] = useState(transition.hasToken(token));
+
     useEffect(() => {
         if (tokenIsIncluded) {
-            transition.addToken(token);
+            // Add token to the transition in DFA
+            StateManager.addTokenToTransition(transition.sourceNode.id, token.symbol, transition.destNode.id);
+        } else {
+            // Remove token from the transition in DFA
+            StateManager.removeTokenFromTransition(transition.sourceNode.id, token.symbol, transition.destNode.id);
         }
-        else {
-            transition.removeToken(token);
-        }
-    }, [tokenIsIncluded]);
+    }, [tokenIsIncluded, token, transition]);
 
     return (
         <div key={token.id}>
-            <input type="checkbox" id="is-epsilon-transition" name={`transition-accepts-${token.id}`} checked={tokenIsIncluded} onChange={e => setTokenIsIncluded(e.target.checked)}></input>
+            <input 
+                type="checkbox" 
+                id={`transition-accepts-${token.id}`} 
+                name={`transition-accepts-${token.id}`} 
+                checked={tokenIsIncluded} 
+                onChange={e => setTokenIsIncluded(e.target.checked)}
+            />
             <label htmlFor={`transition-accepts-${token.id}`}>{token.symbol}</label>
         </div>
-    )
+    );
 }
 
 export default function DetailsBox_TransitionSelection(props: DetailsBox_TransitionSelectionProps) {

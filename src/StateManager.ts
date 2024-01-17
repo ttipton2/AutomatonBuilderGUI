@@ -187,28 +187,32 @@ export default class StateManager {
         const stateId = `q${StateManager._nextStateId++}`;
         const newState = new DFAState(stateId);
         StateManager._dfa.states.push(newState);
-        // Update the frontend representation as needed
-        // ...
-
+        
+        console.log(StateManager._dfa.states.map(state => state.label));
         return newState; // Returning the new state might be useful
     }
 
-    public static renameState(oldName: string, newName: string) {
-        // Check if a state with the new name already exists
+    public static renameState(nodeId: string, newName: string) {
+        // Ensure the new name is unique among states
         if (StateManager._dfa.states.some(state => state.label === newName)) {
             console.error("State name already exists. Please choose a different name.");
             return;
         }
     
-        // Find the state to rename based on the old name
-        const stateToRename = StateManager._dfa.states.find(state => state.label === oldName);
-        if (stateToRename) {
-            // Rename the state
-            stateToRename.label = newName;
-            // Update the frontend representation as needed
-            // ...
+        // Find the NodeWrapper to update
+        const nodeToUpdate = StateManager._nodeWrappers.find(node => node.id === nodeId);
+        if (nodeToUpdate) {
+            // Find the corresponding DFAState and update its label
+            const stateToUpdate = StateManager._dfa.states.find(state => state.label === nodeToUpdate.labelText);
+            if (stateToUpdate) {
+                stateToUpdate.label = newName;
+                // Also update the label in the NodeWrapper
+                nodeToUpdate.labelText = newName;
+            } else {
+                console.error("Corresponding DFAState not found.");
+            }
         } else {
-            console.error("State not found.");
+            console.error("NodeWrapper not found.");
         }
     }
 
@@ -224,24 +228,75 @@ export default class StateManager {
         return this._dfa ? this._dfa.inputAlphabet.map(symbol => new TokenWrapper(symbol)) : [];
     }
 
+    public static addTokenToTransition(currentStateLabel: string, inputToken: string, targetStateLabel: string) {
+        // Find the currentState and targetState DFAState objects based on their labels
+        const currentState = this._dfa.states.find(state => state.label === currentStateLabel);
+        const targetState = this._dfa.states.find(state => state.label === targetStateLabel);
+
+        if (!currentState || !targetState) {
+            console.error("Current state or target state not found");
+            return;
+        }
+
+        // Check if a transition already exists with the given currentState, inputToken, and targetState
+        let transitionExists = this._dfa.transitions.some(transition => 
+            transition.currentState.label === currentState.label && 
+            transition.inputToken === inputToken && 
+            transition.targetState.label === targetState.label
+        );
+
+        if (!transitionExists) {
+            // If the transition doesn't exist, create a new one and add it to the DFA's transitions
+            const newTransition = new DFATransition(currentState, inputToken, targetState);
+            this._dfa.transitions.push(newTransition);
+            console.log("Added new transition:", newTransition);
+            console.log("Current DFA Transitions:", this._dfa.transitions);
+        } else {
+            console.log("Transition already exists");
+        }
+    }
+
+
+
+    public static removeTokenFromTransition(sourceId: string, tokenSymbol: string, targetId: string) {
+        // Find the currentState and targetState DFAState objects based on their labels
+        const currentState = this._dfa.states.find(state => state.label === sourceId);
+        const targetState = this._dfa.states.find(state => state.label === targetId);
+
+        if (!currentState || !targetState) {
+            console.error("Current state or target state not found");
+            return;
+        }
+
+        // Filter out the transition that matches the given currentState, inputToken, and targetState
+        this._dfa.transitions = this._dfa.transitions.filter(transition => 
+            !(transition.currentState.label === currentState.label && 
+              transition.inputToken === tokenSymbol && 
+              transition.targetState.label === targetState.label)
+        );
+
+        console.log(`Transition from ${sourceId} on '${tokenSymbol}' to ${targetId} has been removed if it existed.`);
+        console.log("Current DFA Transitions:", this._dfa.transitions);
+    }
 
     
 
     private static addStateAtDoubleClickPos(evt: Konva.KonvaEventObject<MouseEvent>) {
         const x = evt.evt.pageX;
         const y = evt.evt.pageY;
-        const newStateWrapper = new NodeWrapper(x, y);
-
+    
+        // Create the state in the backend and get its label
+        const newState = StateManager.addState();
+        const stateLabel = newState.label; // Assuming DFAState has a label property
+    
+        // Create a new NodeWrapper with the same label
+        const newStateWrapper = new NodeWrapper(x, y, stateLabel);
         StateManager._nodeWrappers.push(newStateWrapper);
-
         StateManager._nodeLayer.add(newStateWrapper.nodeGroup);
-
+    
         if (StateManager._startNode === null) {
             StateManager.startNode = newStateWrapper;
         }
-        StateManager.addState();
-        console.log(StateManager._dfa.states);
-        console.log(StateManager._dfa.states.map(state => state.label));
     }
 
     public static set startNode(node: NodeWrapper | null) {

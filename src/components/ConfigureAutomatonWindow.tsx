@@ -35,7 +35,7 @@ function ListItem_TokenEditor(props: React.PropsWithChildren<ListItem_TokenEdito
 function AlphabetList() {
     // Initialize the alphabet from the StateManager
     const [alphabet, setAlphabet] = useState(StateManager.currentAlphabet);
-
+    
     function addTokenToAlphabet() {
         const newAlphabet = [...alphabet, new TokenWrapper()];
         setAlphabet(newAlphabet);
@@ -49,6 +49,7 @@ function AlphabetList() {
     useEffect(() => {
         // Update the StateManager's DFA alphabet whenever the component's alphabet state changes
         StateManager.updateDfaAlphabet(alphabet);
+        StateManager.alphabet = alphabet;
         console.log("Updated Alphabet:", alphabet.map(token => token.symbol));
     }, [alphabet]);
 

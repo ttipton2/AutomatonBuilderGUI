@@ -285,10 +285,14 @@ export default class NodeWrapper extends SelectableObject {
     return this._labelText;
   }
 
-  public set labelText(value: string) {
-    this._labelText = value;
-    this.nodeLabel.text(this._labelText);
+  public set labelText(newLabel: string) {
+    const oldLabel = this._labelText;
+    this._labelText = newLabel;
+    this.nodeLabel.text(newLabel);
     this.adjustFontSize();
+
+    // Update the corresponding state label in the backend
+    StateManager.renameState(oldLabel, newLabel);
   }
 
   public updateColorScheme() {
