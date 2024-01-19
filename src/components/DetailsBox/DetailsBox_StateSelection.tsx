@@ -15,6 +15,8 @@ interface SetStartStateButtonProps {
     setStartNode: React.Dispatch<React.SetStateAction<NodeWrapper>>
 }
 
+
+
 function SetStartStateButton(props: SetStartStateButtonProps) {
     let classes = 'rounded-full p-2 m-1 mx-2 block ';
     if (StateManager.startNode === props.nodeWrapper) {
@@ -22,17 +24,22 @@ function SetStartStateButton(props: SetStartStateButtonProps) {
             className={classes + 'bg-slate-400 text-gray-700'}
             disabled={true}>
             Current Start State
-        </button>)
+        </button>);
     }
     else {
-        return <button
-            className={classes + 'bg-emerald-500 text-white'}
-            onClick={e => props.setStartNode(props.nodeWrapper)}>
-            Set Start State
-        </button>
+        return (
+            <button
+                className={classes + 'bg-emerald-500 text-white'}
+                onClick={e => {
+                    props.setStartNode(props.nodeWrapper);
+                    StateManager.setStartState(props.nodeWrapper.labelText);
+                }}>
+                Set Start State
+            </button>
+        );
     }
-
 }
+
 
 
 export default function DetailsBox_StateSelection(props: DetailsBox_StateSelectionProps) {
@@ -46,6 +53,9 @@ export default function DetailsBox_StateSelection(props: DetailsBox_StateSelecti
 
     useEffect(() => {
         nw.isAcceptNode = isAcceptNode;
+        // Call StateManager to update the DFA's accept states
+        StateManager.updateAcceptStates(nw.labelText, isAcceptNode);
+        StateManager.logAcceptStates();
     }, [isAcceptNode]);
 
     return (

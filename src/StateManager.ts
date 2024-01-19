@@ -48,6 +48,10 @@ export default class StateManager {
         }
     }
 
+    public static get dfa(): DFA | null {
+        return this._dfa;
+    }
+    
     private constructor() {
     }
 
@@ -55,7 +59,7 @@ export default class StateManager {
         if (!this._dfa) {
             this._dfa = new DFA();  
         }
-
+console.log("state manager initializing");
         // Initialize DFA properties, but load alphabet from localStorage
         this._dfa.inputAlphabet = JSON.parse(localStorage.getItem('dfaAlphabet') || '[]');
         this._dfa.states = this._dfa.states || [];
@@ -184,12 +188,16 @@ export default class StateManager {
     }
 
     public static addState() {
-        const stateId = `q${StateManager._nextStateId++}`;
-        const newState = new DFAState(stateId);
+        const label = `q${StateManager._nextStateId++}`; // This becomes the label
+        const newState = new DFAState(label); // Now passing label into the constructor
         StateManager._dfa.states.push(newState);
         
         console.log(StateManager._dfa.states.map(state => state.label));
         return newState; // Returning the new state might be useful
+    }
+
+    public static findStateByLabel(label: string): DFAState | undefined {
+        return this._dfa?.states.find(state => state.label === label);
     }
 
     public static renameState(nodeId: string, newName: string) {
@@ -198,7 +206,7 @@ export default class StateManager {
             console.error("State name already exists. Please choose a different name.");
             return;
         }
-    
+
         // Find the NodeWrapper to update
         const nodeToUpdate = StateManager._nodeWrappers.find(node => node.id === nodeId);
         if (nodeToUpdate) {
@@ -216,6 +224,57 @@ export default class StateManager {
         }
     }
 
+    public static updateAcceptStates(stateLabel: string, isAccept: boolean) {
+        if (!this._dfa) {
+            console.error("DFA not initialized.");
+            return;
+        }
+    
+        // Check if the state exists in the DFA
+        const state = this._dfa.states.find(st => st.label === stateLabel);
+        if (!state) {
+            console.error(`State with label '${stateLabel}' not found.`);
+            return;
+        }
+    
+        if (isAccept) {
+            // Add state to acceptStates if not already present
+            if (!this._dfa.acceptStates.includes(state)) {
+                this._dfa.acceptStates.push(state);
+            }
+        } else {
+            // Remove state from acceptStates if present
+            this._dfa.acceptStates = this._dfa.acceptStates.filter(st => st !== state);
+        }
+    }
+
+    public static logAcceptStates() {
+        if (!this._dfa || !this._dfa.acceptStates) {
+            console.error("DFA or accept states array not initialized.");
+            return;
+        }
+    
+        // Mapping each state to its label and joining with a newline for readability
+        const acceptStatesLabels = this._dfa.acceptStates.map(state => state.label).join('\n');
+        console.log("Accept States:\n" + acceptStatesLabels);
+    }
+
+    public static setStartState(stateLabel: string) {
+        if (!this._dfa) {
+            console.error("DFA not initialized.");
+            return;
+        }
+    
+        const startState = this._dfa.states.find(st => st.label === stateLabel);
+        if (!startState) {
+            console.error(`Start state with label '${stateLabel}' not found.`);
+            return;
+        }
+    
+        this._dfa.startState = startState;
+        console.log("Start State set to:", startState.label);
+    }
+
     public static updateDfaAlphabet(tokenWrappers: TokenWrapper[]) {
         if (this._dfa) {
             this._dfa.inputAlphabet = tokenWrappers.map(token => token.symbol);
@@ -224,38 +283,76 @@ export default class StateManager {
         }
     }
 
+    public static saveTransitionsToLocalStorage() {
+        if (!this._dfa || !this._dfa.transitions) {
+            console.error("DFA or transitions not initialized.");
+            return;
+        }
+    
+        const serializedTransitions = this._dfa.transitions.map(transition => ({
+            currentStateLabel: transition.currentState.label,
+            inputToken: transition.inputToken,
+            targetStateLabel: transition.targetState.label
+        }));
+    
+        localStorage.setItem('dfaTransitions', JSON.stringify(serializedTransitions));
+    }
+
+    public static printTransitions() {
+        if (!this._dfa) {
+            console.log("No DFA initialized, or no transitions available.");
+            return;
+        }
+        const transitionsString = this._dfa.transitions.map(tr => 
+            `Transition from ${tr.currentState.label} to ${tr.targetState.label} on '${tr.inputToken}'`
+        ).join('\n');
+        console.log("Current Transitions:\n" + transitionsString);
+    }
+    
+
     public static get currentAlphabet(): TokenWrapper[] {
         return this._dfa ? this._dfa.inputAlphabet.map(symbol => new TokenWrapper(symbol)) : [];
     }
 
-    public static addTokenToTransition(currentStateLabel: string, inputToken: string, targetStateLabel: string) {
-        // Find the currentState and targetState DFAState objects based on their labels
-        const currentState = this._dfa.states.find(state => state.label === currentStateLabel);
-        const targetState = this._dfa.states.find(state => state.label === targetStateLabel);
-
-        if (!currentState || !targetState) {
-            console.error("Current state or target state not found");
-            return;
-        }
-
-        // Check if a transition already exists with the given currentState, inputToken, and targetState
-        let transitionExists = this._dfa.transitions.some(transition => 
-            transition.currentState.label === currentState.label && 
-            transition.inputToken === inputToken && 
-            transition.targetState.label === targetState.label
-        );
-
-        if (!transitionExists) {
-            // If the transition doesn't exist, create a new one and add it to the DFA's transitions
-            const newTransition = new DFATransition(currentState, inputToken, targetState);
-            this._dfa.transitions.push(newTransition);
-            console.log("Added new transition:", newTransition);
-            console.log("Current DFA Transitions:", this._dfa.transitions);
-        } else {
-            console.log("Transition already exists");
-        }
+    public static getLabelFromId(id: string): string | null {
+        const nodeWrapper = this._nodeWrappers.find(node => node.id === id);
+        return nodeWrapper ? nodeWrapper.labelText : null;
     }
 
+    public static addTokenToTransition(sourceLabel: string, inputToken: string, targetLabel: string) {
+    if (!this._dfa) {
+        console.error("DFA is not initialized.");
+        return;
+    }
+
+    const sourceState = this._dfa.states.find(state => state.label === sourceLabel);
+    const targetState = this._dfa.states.find(state => state.label === targetLabel);
+
+    if (!sourceState || !targetState) {
+        console.error(`Source state '${sourceLabel}' or target state '${targetLabel}' not found.`);
+        return;
+    }
+
+    if (!this._dfa.inputAlphabet.includes(inputToken)) {
+        console.error(`Input token '${inputToken}' is not in DFA's alphabet.`);
+        return;
+    }
+
+    const existingTransition = this._dfa.transitions.find(tr => 
+        tr.currentState.label === sourceLabel && 
+        tr.inputToken === inputToken && 
+        tr.targetState.label === targetLabel);
+
+    if (existingTransition) {
+        console.warn("This transition already exists.");
+    } else {
+        const newTransition = new DFATransition(sourceState, inputToken, targetState);
+        this._dfa.transitions.push(newTransition);
+        console.log("Transition added:", newTransition.toString());
+    }
+}
+
+    
 
 
     public static removeTokenFromTransition(sourceId: string, tokenSymbol: string, targetId: string) {
@@ -287,16 +384,32 @@ export default class StateManager {
     
         // Create the state in the backend and get its label
         const newState = StateManager.addState();
-        const stateLabel = newState.label; // Assuming DFAState has a label property
+        const stateLabel = newState.label;
     
         // Create a new NodeWrapper with the same label
         const newStateWrapper = new NodeWrapper(x, y, stateLabel);
         StateManager._nodeWrappers.push(newStateWrapper);
         StateManager._nodeLayer.add(newStateWrapper.nodeGroup);
     
+        // Set the first added state as the start state in both the GUI and DFA
         if (StateManager._startNode === null) {
-            StateManager.startNode = newStateWrapper;
+            StateManager.startNode = newStateWrapper; // Set visually in the GUI
+            StateManager.setStartState(stateLabel);   // Update DFA's start state
         }
+    }
+
+    public static logDFAConfiguration() {
+        if (!this._dfa) {
+            console.error("DFA is not initialized.");
+            return;
+        }
+    
+        console.log("DFA Configuration:");
+        console.log("States:", this._dfa.states.map(s => s.label));
+        console.log("Transitions:", this._dfa.transitions.map(t => `${t.currentState.label} -${t.inputToken}-> ${t.targetState.label}`));
+        console.log("Start State:", this._dfa.startState?.label);
+        console.log("Accept States:", this._dfa.acceptStates.map(s => s.label));
+        console.log("Alphabet:", this._dfa.inputAlphabet);
     }
 
     public static set startNode(node: NodeWrapper | null) {
@@ -442,6 +555,7 @@ export default class StateManager {
         StateManager._selectedObjects = [];
     }
     
+    
     public static set alphabet(newAlphabet: Array<TokenWrapper>) {
         const oldAlphabet = StateManager._alphabet;
         StateManager._alphabet = newAlphabet;
@@ -456,12 +570,11 @@ export default class StateManager {
             }
         });
 
-        console.log('alphabet is', StateManager._alphabet);
+        console.log('alphabet is in state', StateManager.alphabet.map(token => token.symbol));
     }
 
-    public static get alphabet() {
-        console.log('alphabet is', StateManager._alphabet);
-        return [...StateManager._alphabet];
+    public static get alphabet(): Array<TokenWrapper> {
+        return StateManager._alphabet;
     }
 
     public static toJSON() {

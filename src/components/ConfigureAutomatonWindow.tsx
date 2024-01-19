@@ -49,8 +49,10 @@ function AlphabetList() {
     useEffect(() => {
         // Update the StateManager's DFA alphabet whenever the component's alphabet state changes
         StateManager.updateDfaAlphabet(alphabet);
-        StateManager.alphabet = alphabet;
-        console.log("Updated Alphabet:", alphabet.map(token => token.symbol));
+        StateManager.alphabet = alphabet;  // Make sure this calls the setter in StateManager
+        StateManager.alphabet = alphabet; // This updates the internal _alphabet in StateManager
+        console.log('alphabet is', StateManager.alphabet.map(token => token.symbol));
+    console.log("Alphabet in AlphabetList Component:", alphabet.map(token => token.symbol));
     }, [alphabet]);
 
     const tokenWrapperElements = alphabet.map(tw => <ListItem_TokenEditor tokenWrapper={tw} removeFunc={removeTokenFromAlphabet} key={tw.id} />);

@@ -4,6 +4,7 @@ import { Tool } from './Tool';
 import { Vector2d } from 'konva/lib/types';
 import SelectableObject from './SelectableObject';
 import { v4 as uuidv4 } from 'uuid';
+import DFAState from 'automaton-kit/lib/dfa/DFAState';
 
 export default class NodeWrapper extends SelectableObject {
   public static readonly NodeRadius = 30;
@@ -13,6 +14,8 @@ export default class NodeWrapper extends SelectableObject {
 
   public static readonly StrokeColor = 'black';
   public static readonly StrokeWidth = 2;
+
+  public state: DFAState;
 
   private nodeBackground: Konva.Circle;
   private nodeAcceptCircle: Konva.Circle;

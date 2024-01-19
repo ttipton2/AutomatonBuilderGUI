@@ -21,14 +21,25 @@ function DetailsBox_TransitionTokenCheckBox(props: DetailsBox_TransitionTokenChe
     const [tokenIsIncluded, setTokenIsIncluded] = useState(transition.hasToken(token));
 
     useEffect(() => {
+        const sourceLabel = StateManager.getLabelFromId(transition.sourceNode.id);
+        const targetLabel = StateManager.getLabelFromId(transition.destNode.id);
+    
+        if (!sourceLabel || !targetLabel) {
+            console.error("Unable to find state labels for transition.");
+            return;
+        }
+    
         if (tokenIsIncluded) {
             // Add token to the transition in DFA
-            StateManager.addTokenToTransition(transition.sourceNode.id, token.symbol, transition.destNode.id);
+            StateManager.addTokenToTransition(sourceLabel, token.symbol, targetLabel);
         } else {
             // Remove token from the transition in DFA
-            StateManager.removeTokenFromTransition(transition.sourceNode.id, token.symbol, transition.destNode.id);
+            StateManager.removeTokenFromTransition(sourceLabel, token.symbol, targetLabel);
         }
+        StateManager.saveTransitionsToLocalStorage()
+        StateManager.printTransitions();
     }, [tokenIsIncluded, token, transition]);
+    
 
     return (
         <div key={token.id}>
