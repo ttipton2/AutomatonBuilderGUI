@@ -134,7 +134,7 @@ export default class TransitionWrapper extends SelectableObject {
                 srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.sin(ANGLE)
             ];
             this.arrowObject.points(pointsArray);
-            this.arrowObject.tension(0);
+            this.arrowObject.tension(0); 
     
             this.labelObject.position({x: centerPtX, y: centerPtY});
             this.labelCenterDebugObject.position({x: centerPtX, y: centerPtY});
