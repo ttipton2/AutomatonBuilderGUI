@@ -18,6 +18,9 @@ export default class TransitionWrapper extends SelectableObject {
     public konvaGroup: Konva.Group;
 
     private _sourceNode: NodeWrapper;
+    transitionId: string;
+    isCurved: boolean;
+    priority: string;
     public get sourceNode() { return this._sourceNode; }
 
     private _destNode: NodeWrapper;
@@ -40,6 +43,13 @@ export default class TransitionWrapper extends SelectableObject {
         this._destNode = destNode;
         this._tokens = new Set(tokens) ?? new Set<TokenWrapper>();
         this._isEpsilonTransition = isEpsilonTransition ?? false;
+
+        const existingTransitions = StateManager.transitions.filter(t => 
+            (t.sourceNode.id === sourceNode.id && t.destNode.id === destNode.id) ||
+            (t.sourceNode.id === destNode.id && t.destNode.id === sourceNode.id)
+        );
+
+        this.priority = existingTransitions.length === 0 ? 'first' : 'second';
 
         this.konvaGroup = new Konva.Group();
 
@@ -134,21 +144,8 @@ export default class TransitionWrapper extends SelectableObject {
     
         let srcPos = this._sourceNode.nodeGroup.position();
         let dstPos = this._destNode.nodeGroup.position();
-    
-        const sourceNodeId = this._sourceNode.id;
-        const destNodeId = this._destNode.id;
-    
-        let shouldBeCurved = false;
-        const otherTransitions = StateManager.transitions.filter((t: TransitionWrapper) => {
-            return (t !== this && ((t.sourceNode.id === sourceNodeId && t.destNode.id === destNodeId) ||
-                                   (t.sourceNode.id === destNodeId && t.destNode.id === sourceNodeId)));
-        });
-    
-        if (otherTransitions.length > 0) {
-            shouldBeCurved = true;
-        }
-    
-        if (shouldBeCurved) {
+
+        if (this.priority === 'second') {
             console.log('Curved arrow logic executed!');
             const controlPointX = (srcPos.x + dstPos.x) / 2;
             const controlPointY = (srcPos.y + dstPos.y) / 2 - 50;
@@ -175,8 +172,20 @@ export default class TransitionWrapper extends SelectableObject {
     
             this.labelObject.x(midX);
             this.labelObject.y(midY - 25);
-    
-            this.labelCenterDebugObject.position({ x: midX, y: midY - 25 });
+
+            // Calculating the midpoint of the Bezier curve using adjusted Y value
+            const adjustmentValue = 43;
+            const adjustedControlPointY = controlPointY - adjustmentValue;
+            const t = 0.5;
+            const oneMinusT = 1 - t;
+            const bx = (oneMinusT * oneMinusT * srcPos.x) + 
+                        (2 * oneMinusT * t * controlPointX) + 
+                        (t * t * adjustedEndX);
+            const by = (oneMinusT * oneMinusT * srcPos.y) + 
+                        (2 * oneMinusT * t * adjustedControlPointY) + 
+                        (t * t * adjustedEndY);
+         
+            this.labelCenterDebugObject.position({ x: bx, y: by });
         } else {
             let xDestRelativeToSrc = dstPos.x - srcPos.x;
             let yDestRelativeToSrc = dstPos.y - srcPos.y;
