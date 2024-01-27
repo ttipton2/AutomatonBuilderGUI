@@ -18,6 +18,9 @@ export default class TransitionWrapper extends SelectableObject {
     public konvaGroup: Konva.Group;
 
     private _sourceNode: NodeWrapper;
+    transitionId: string;
+    isCurved: boolean;
+    priority: string;
     public get sourceNode() { return this._sourceNode; }
 
     private _destNode: NodeWrapper;
@@ -33,12 +36,20 @@ export default class TransitionWrapper extends SelectableObject {
     }
 
     constructor(sourceNode: NodeWrapper, destNode: NodeWrapper, isEpsilonTransition: boolean | null = null, tokens: Array<TokenWrapper> | Set<TokenWrapper> | null = null) {
+        console.log('inside the constructor');
         super();
         this._id = uuidv4();
         this._sourceNode = sourceNode;
         this._destNode = destNode;
         this._tokens = new Set(tokens) ?? new Set<TokenWrapper>();
         this._isEpsilonTransition = isEpsilonTransition ?? false;
+
+        const existingTransitions = StateManager.transitions.filter(t => 
+            (t.sourceNode.id === sourceNode.id && t.destNode.id === destNode.id) ||
+            (t.sourceNode.id === destNode.id && t.destNode.id === sourceNode.id)
+        );
+
+        this.priority = existingTransitions.length === 0 ? 'first' : 'second';
 
         this.konvaGroup = new Konva.Group();
 
@@ -94,79 +105,118 @@ export default class TransitionWrapper extends SelectableObject {
 
     public updatePoints() {
         this.resetLabel();
-
+    
         // If source node and destination node are the same,
-        // then the transition arrow should not do its usual thing.
-        // Instead, it should loop up and around
+        // then the transition arrow should loop up and around
         if (this._sourceNode == this._destNode) {
-            console.log('source node and dest node are the same!')
+            console.log('source node and dest node are the same!');
             let srcPos = this._sourceNode.nodeGroup.position();
             const ANGLE = 60.0 * (Math.PI / 180.0);
             const DIST = 30;
-
-
+    
             const centerPtX = srcPos.x;
             const centerPtY = srcPos.y - NodeWrapper.NodeRadius - DIST * 1.5;
-
+    
             let pointsArray = [
                 srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE),
                 srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE),
-
+    
                 srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE) + DIST * Math.cos(ANGLE),
                 srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
-
+    
                 centerPtX,
                 centerPtY,
-
+    
                 srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - DIST * Math.cos(ANGLE),
                 srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
-
+    
                 srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.cos(ANGLE),
                 srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.sin(ANGLE)
             ];
             this.arrowObject.points(pointsArray);
-            this.arrowObject.tension(0);
-
+            this.arrowObject.tension(0); 
+    
             this.labelObject.position({x: centerPtX, y: centerPtY});
             this.labelCenterDebugObject.position({x: centerPtX, y: centerPtY});
-
+    
             return;
         }
-
-        // The source and destination are different, so draw the
-        // arrow from one to the other.
+    
         let srcPos = this._sourceNode.nodeGroup.position();
         let dstPos = this._destNode.nodeGroup.position();
 
-        let xDestRelativeToSrc = dstPos.x - srcPos.x;
-        let yDestRelativeToSrc = dstPos.y - srcPos.y;
+        if (this.priority === 'second') {
+            console.log('Curved arrow logic executed!');
+            const controlPointX = (srcPos.x + dstPos.x) / 2;
+            const controlPointY = (srcPos.y + dstPos.y) / 2 - 50;
+            const midX = (srcPos.x + dstPos.x) / 2;
+            const midY = (srcPos.y + dstPos.y) / 2;
+    
+            const dirX = dstPos.x - controlPointX;
+            const dirY = dstPos.y - controlPointY;
+            const magnitude = Math.sqrt(dirX * dirX + dirY * dirY);
+            const normDirX = dirX / magnitude;
+            const normDirY = dirY / magnitude;
+    
+            const angleRadians = Math.atan2(normDirY, normDirX);
+    
+            const arrowHeadLength = this.arrowObject.pointerLength() + this.arrowObject.pointerWidth();
+            const offsetX = Math.cos(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
+            const offsetY = Math.sin(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
+    
+            const adjustedEndX = dstPos.x - offsetX;
+            const adjustedEndY = dstPos.y - offsetY;
+    
+            this.arrowObject.points([srcPos.x, srcPos.y, controlPointX, controlPointY, adjustedEndX, adjustedEndY]);
+            this.arrowObject.tension(0.5);
+    
+            this.labelObject.x(midX);
+            this.labelObject.y(midY - 25);
 
-        let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
-
-        let newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
-        let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
-        let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
-
-        this.arrowObject.points([
-            srcPos.x,
-            srcPos.y,
-            dstPos.x - xUnitTowardsSrc,
-            dstPos.y - yUnitTowardsSrc
-        ]);
-
-        this.arrowObject.tension(0);
-
-        // calculate center of transition line, for label
-        const xAvg = ((srcPos.x + xUnitTowardsSrc) + (dstPos.x - xUnitTowardsSrc)) / 2;
-        const yAvg = ((srcPos.y + yUnitTowardsSrc) + (dstPos.y - yUnitTowardsSrc)) / 2;
-
-        const xCenter = xAvg;// - this.labelObject.getTextWidth() / 2;
-        const yCenter = yAvg;
-        this.labelObject.x(xCenter);
-        this.labelObject.y(yCenter);
-
-        this.labelCenterDebugObject.position({x: xCenter, y: yCenter});
+            // Calculating the midpoint of the Bezier curve using adjusted Y value
+            const adjustmentValue = 43;
+            const adjustedControlPointY = controlPointY - adjustmentValue;
+            const t = 0.5;
+            const oneMinusT = 1 - t;
+            const bx = (oneMinusT * oneMinusT * srcPos.x) + 
+                        (2 * oneMinusT * t * controlPointX) + 
+                        (t * t * adjustedEndX);
+            const by = (oneMinusT * oneMinusT * srcPos.y) + 
+                        (2 * oneMinusT * t * adjustedControlPointY) + 
+                        (t * t * adjustedEndY);
+         
+            this.labelCenterDebugObject.position({ x: bx, y: by });
+        } else {
+            let xDestRelativeToSrc = dstPos.x - srcPos.x;
+            let yDestRelativeToSrc = dstPos.y - srcPos.y;
+    
+            let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
+    
+            let newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
+            let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
+            let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
+    
+            this.arrowObject.points([
+                srcPos.x,
+                srcPos.y,
+                dstPos.x - xUnitTowardsSrc,
+                dstPos.y - yUnitTowardsSrc
+            ]);
+    
+            this.arrowObject.tension(0);
+    
+            const xAvg = ((srcPos.x + xUnitTowardsSrc) + (dstPos.x - xUnitTowardsSrc)) / 2;
+            const yAvg = ((srcPos.y + yUnitTowardsSrc) + (dstPos.y - yUnitTowardsSrc)) / 2;
+    
+            const xCenter = xAvg;
+            const yCenter = yAvg;
+            this.labelObject.x(xCenter);
+            this.labelObject.y(yCenter);
+    
+            this.labelCenterDebugObject.position({x: xCenter, y: yCenter});
+        }
     }
+    
 
     public involvesNode(node: NodeWrapper): boolean {
         return this._sourceNode === node || this._destNode === node;
