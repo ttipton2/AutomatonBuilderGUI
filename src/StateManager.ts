@@ -16,6 +16,7 @@ export default class StateManager {
     private static _alphabet: Array<TokenWrapper> = [];
 
     private static _selectedObjects: Array<SelectableObject> = [];
+    private static _transitions: Array<TransitionWrapper> = [];
 
     private static _tentativeTransitionSource: NodeWrapper | null = null;
     private static _tentativeTransitionTarget: NodeWrapper | null = null;
@@ -48,6 +49,9 @@ export default class StateManager {
         this._startNode = null;
         this._nodeWrappers = [];
         this._transitionWrappers = [];
+        this._transitions = [];
+
+        console.log('transitions array initialized')
 
         Konva.hitOnDragEnabled = true;
 
@@ -96,52 +100,14 @@ export default class StateManager {
 
         this._stage.add(this._transitionLayer);
         this._stage.add(this._nodeLayer);
-        StateManager.drawGrid();
+
         addEventListener('keydown', this.onKeyDown);
-        addEventListener('resize', this.handleResize);
     }
-    //handles resizing the canvas when the window is resized using an event listener
-    private static handleResize() {
-        if (StateManager._stage) {
-            StateManager._stage.width(window.innerWidth);
-            StateManager._stage.height(window.innerHeight);
-
-            const gridLayer = StateManager._stage.findOne('.gridLayer');
-            if(gridLayer){
-                gridLayer.destroy() ;
-            }
-            StateManager.drawGrid();
-
-            StateManager._stage.draw();
-        }
-    }
-
-    public static drawGrid(){
-        const gridLayer = new Konva.Layer({name: 'gridLayer'});
-        const gridCellSize = 50;
-        const verticalLineNum = 80
-        const horizontalLineNum = 40
-
-        for(let i = 0; i < verticalLineNum; i++){
-            let line = new Konva.Line({
-                points: [i * gridCellSize, 0, i * gridCellSize,(horizontalLineNum-1)*gridCellSize],
-                stroke: 'lightgrey',
-                strokeWidth: 1,
-            });
-            gridLayer.add(line);
-        }
-
-        for(let j = 0; j < horizontalLineNum; j++){
-            let line = new Konva.Line({
-                points: [0, j * gridCellSize, (verticalLineNum-1)*gridCellSize, j * gridCellSize],
-                stroke: 'lightgrey',
-                strokeWidth: 1,
-            });
-            gridLayer.add(line);
-        }
-        StateManager._stage.add(gridLayer);
-        gridLayer.moveToBottom();
-    }
+    public static get transitions(): Array<TransitionWrapper> {
+        console.log("inside get transitions");
+        return StateManager._transitions;
+      }
+    
 
     public static get currentTool() {
         return StateManager._currentTool;
@@ -180,6 +146,11 @@ export default class StateManager {
             StateManager.startNode = newStateWrapper;
         }
     }
+
+    public static addTransition(transition: TransitionWrapper) {
+        console.log('Adding transition to the array');
+        StateManager._transitions.push(transition);
+      }
 
     public static set startNode(node: NodeWrapper | null) {
         if (StateManager._startNode) {
@@ -247,6 +218,7 @@ export default class StateManager {
         if (StateManager._tentativeTransitionSource !== null && StateManager.tentativeTransitionTarget !== null) {
             const newTransitionWrapper = new TransitionWrapper(StateManager._tentativeTransitionSource, StateManager._tentativeTransitionTarget);
             StateManager._transitionWrappers.push(newTransitionWrapper);
+            StateManager._transitions.push(newTransitionWrapper);
             StateManager._transitionLayer.add(newTransitionWrapper.konvaGroup);
             StateManager._transitionLayer.draw();
         }
@@ -410,7 +382,8 @@ export default class StateManager {
             const isEpsilonTransition = trans.isEpsilonTransition;
             const tokens = trans.tokens.map(tokID => StateManager._alphabet.find(tok => tok.id === tokID));
             const newTrans = new TransitionWrapper(src, dest, isEpsilonTransition, tokens);
-
+            
+            StateManager._transitions.push(newTrans);
             StateManager._transitionWrappers.push(newTrans);
             StateManager._transitionLayer.add(newTrans.konvaGroup);
         })
