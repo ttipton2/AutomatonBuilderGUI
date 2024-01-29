@@ -8,7 +8,7 @@ import { ChangeEvent, ChangeEventHandler } from "react";
 import { LightColorScheme, DarkColorScheme, ColorScheme } from "./ColorSchemes";
 
 export default class StateManager {
-    public static _nextStateId = 0;
+    static _nextStateId = 0;
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
     private static _startNode: NodeWrapper | null = null;
 
@@ -95,12 +95,17 @@ export default class StateManager {
         });
         this._transitionLayer.add(this._startStateLine);
 
+        
         this._stage.add(this._transitionLayer);
         this._stage.add(this._nodeLayer);
         StateManager.drawGrid();
         addEventListener('keydown', this.onKeyDown);
         addEventListener('resize', this.handleResize);
     }
+    public static get transitions(): Array<TransitionWrapper> {
+        return StateManager._transitionWrappers;
+      }
+
     //handles resizing the canvas when the window is resized using an event listener
     private static handleResize() {
         if (StateManager._stage) {
@@ -143,6 +148,7 @@ export default class StateManager {
         StateManager._stage.add(gridLayer);
         gridLayer.moveToBottom();
     }
+    
 
     public static get currentTool() {
         return StateManager._currentTool;
@@ -181,6 +187,11 @@ export default class StateManager {
             StateManager.startNode = newStateWrapper;
         }
     }
+
+    public static addTransition(transition: TransitionWrapper) {
+        console.log('Adding transition to the array');
+        StateManager._transitionWrappers.push(transition);
+      }
 
     public static set startNode(node: NodeWrapper | null) {
         if (StateManager._startNode) {
@@ -411,7 +422,7 @@ export default class StateManager {
             const isEpsilonTransition = trans.isEpsilonTransition;
             const tokens = trans.tokens.map(tokID => StateManager._alphabet.find(tok => tok.id === tokID));
             const newTrans = new TransitionWrapper(src, dest, isEpsilonTransition, tokens);
-
+            
             StateManager._transitionWrappers.push(newTrans);
             StateManager._transitionLayer.add(newTrans.konvaGroup);
         })
