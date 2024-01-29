@@ -8,7 +8,7 @@ import { ChangeEvent, ChangeEventHandler } from "react";
 import { LightColorScheme, DarkColorScheme, ColorScheme } from "./ColorSchemes";
 
 export default class StateManager {
-    public static _nextStateId = 0;
+    static _nextStateId = 0;
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
     private static _startNode: NodeWrapper | null = null;
 
@@ -95,14 +95,59 @@ export default class StateManager {
         });
         this._transitionLayer.add(this._startStateLine);
 
+        
         this._stage.add(this._transitionLayer);
         this._stage.add(this._nodeLayer);
-
+        StateManager.drawGrid();
         addEventListener('keydown', this.onKeyDown);
+        addEventListener('resize', this.handleResize);
     }
     public static get transitions(): Array<TransitionWrapper> {
         return StateManager._transitionWrappers;
       }
+
+    //handles resizing the canvas when the window is resized using an event listener
+    private static handleResize() {
+        if (StateManager._stage) {
+            StateManager._stage.width(window.innerWidth);
+            StateManager._stage.height(window.innerHeight);
+
+            const gridLayer = StateManager._stage.findOne('.gridLayer');
+            if(gridLayer){
+                gridLayer.destroy() ;
+            }
+            StateManager.drawGrid();
+
+            StateManager._stage.draw();
+        }
+    }
+
+    public static drawGrid(){
+        const gridLayer = new Konva.Layer({name: 'gridLayer'});
+        const gridCellSize = 50;
+        const verticalLineNum = 80
+        const horizontalLineNum = 40
+
+        for(let i = 0; i < verticalLineNum; i++){
+            let line = new Konva.Line({
+                points: [i * gridCellSize, 0, i * gridCellSize,(horizontalLineNum-1)*gridCellSize],
+                stroke: 'lightgrey',
+                strokeWidth: 1,
+            });
+            gridLayer.add(line);
+        }
+
+        for(let j = 0; j < horizontalLineNum; j++){
+            let line = new Konva.Line({
+                points: [0, j * gridCellSize, (verticalLineNum-1)*gridCellSize, j * gridCellSize],
+                stroke: 'lightgrey',
+                strokeWidth: 1,
+            });
+            gridLayer.add(line);
+        }
+        StateManager._stage.add(gridLayer);
+        gridLayer.moveToBottom();
+    }
     
 
     public static get currentTool() {

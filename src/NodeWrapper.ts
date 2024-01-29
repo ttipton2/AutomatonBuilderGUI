@@ -44,7 +44,7 @@ export default class NodeWrapper extends SelectableObject {
     super();
     this._id = id ?? uuidv4();
 
-    this._labelText = label ?? `q${StateManager._nextStateId++}`;
+    this._labelText = label ?? `q${StateManager._nextStateId++}`; // This becomes the label;
 
     this.nodeGroup = new Konva.Group({ x: x, y: y });
 
