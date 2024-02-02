@@ -5,6 +5,8 @@ import DFA from 'automaton-kit/lib/dfa/DFA';
 import DFATransition from 'automaton-kit/lib/dfa/DFATransition';
 import DFAState from 'automaton-kit/lib/dfa/DFAState';
 import StateManager from "../StateManager";
+
+
 export default function TestStringWindow() {
     const [testString, setTestString] = useState('');
     const [result, setResult] = useState('');

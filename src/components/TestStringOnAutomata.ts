@@ -27,7 +27,6 @@ import StateManager from '../StateManager';
 //     acceptStates: string[];
 // }
 
-
 function convertIDtoLabelOrSymbol(id: string, stateManagerData: any): string | null {
     // Check if the ID matches a state ID
     const state = stateManagerData.states.find((s: any) => s.id === id);
@@ -103,3 +102,4 @@ export function testStringOnAutomata(testString: string): string {
             return 'Unknown Status';
     }
 }
+

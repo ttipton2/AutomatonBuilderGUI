@@ -92,7 +92,6 @@ export default function ConfigureAutomatonWindow() {
                     subtitle="An NFA will have fewer requirements than a DFA."
                     rightContent={faTypeSelector}
                 />
-
             </div>
             <AlphabetList />
         </div>
