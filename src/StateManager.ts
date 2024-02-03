@@ -60,6 +60,7 @@ export default class StateManager {
         });
         this._stage.on('dblclick', (ev) => StateManager.onDoubleClick.call(this, ev));
         this._stage.on('click', (ev) => StateManager.onClick.call(this, ev));
+        this._stage.on('wheel', StateManager.handleWheelEvent);
 
         this._nodeLayer = new Konva.Layer();
         this._transitionLayer = new Konva.Layer();
@@ -334,6 +335,29 @@ export default class StateManager {
 
         StateManager.setSelectedObjects([]);
         StateManager._selectedObjects = [];
+    }
+
+    // method to zoom in or out when the mouse wheel is scrolled.
+    private static handleWheelEvent(ev: any) {
+        ev.evt.preventDefault();
+        var oldScale = StateManager._stage.scaleX();
+    
+        var pointer = StateManager._stage.getPointerPosition();
+    
+        var mousePointer = {
+            x: (pointer.x - StateManager._stage.x()) / oldScale,
+            y: (pointer.y - StateManager._stage.y()) / oldScale,
+        };
+    
+        var newScale = ev.evt.deltaY > 0 ? oldScale * 0.9 : oldScale * 1.1;
+        StateManager._stage.scale({ x: newScale, y: newScale });
+    
+        var newPos = {
+            x: pointer.x - mousePointer.x * newScale,
+            y: pointer.y - mousePointer.y * newScale,
+        };
+        StateManager._stage.position(newPos);
+        StateManager._stage.batchDraw();
     }
     
     public static set alphabet(newAlphabet: Array<TokenWrapper>) {
