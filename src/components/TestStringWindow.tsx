@@ -4,6 +4,8 @@ import { BsFillClipboardCheckFill } from "react-icons/bs";
 import DFA from 'automaton-kit/lib/dfa/DFA';
 import DFATransition from 'automaton-kit/lib/dfa/DFATransition';
 import DFAState from 'automaton-kit/lib/dfa/DFAState';
+import StateManager from "../StateManager";
+
 
 export default function TestStringWindow() {
     const [testString, setTestString] = useState('');
@@ -11,6 +13,7 @@ export default function TestStringWindow() {
 
     //This is logic from the test code provided. In the future, we will need to connect
     //the GUI to the functions so that the DFA creates itself as the user adds states and transitions.
+    /*
     let q0 = new DFAState();
     let q1 = new DFAState();
     let dfa = new DFA();
@@ -24,9 +27,9 @@ export default function TestStringWindow() {
     ];
     dfa.startState = q0;  // Single state that is the initial state
     dfa.acceptStates = [q1];  // Set (array) of states that will cause it to accept
-
+    */
     const handleTestString = () => {
-        const testResult = testStringOnAutomata(dfa, testString);
+        const testResult = testStringOnAutomata(testString);
         setResult(testResult);
     };
 
