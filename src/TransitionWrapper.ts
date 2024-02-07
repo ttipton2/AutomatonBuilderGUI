@@ -49,7 +49,14 @@ export default class TransitionWrapper extends SelectableObject {
             (t.sourceNode.id === destNode.id && t.destNode.id === sourceNode.id)
         );
 
-        this.priority = existingTransitions.length === 0 ? 'first' : 'second';
+        //this.priority = existingTransitions.length === 0 ? 'first' : 'second';
+        if(existingTransitions.length === 0){
+            this.priority = 'straight';
+        } else {
+            existingTransitions[0].priority = 'first';
+            this.priority = 'second';
+            existingTransitions[0].updatePoints();
+        }
 
         this.konvaGroup = new Konva.Group();
 
@@ -145,29 +152,47 @@ export default class TransitionWrapper extends SelectableObject {
         let srcPos = this._sourceNode.nodeGroup.position();
         let dstPos = this._destNode.nodeGroup.position();
 
-        if (this.priority === 'second') {
+        if (this.priority === 'second' || this.priority === 'first') {
             console.log('Curved arrow logic executed!');
-            const controlPointX = (srcPos.x + dstPos.x) / 2;
-            const controlPointY = (srcPos.y + dstPos.y) / 2 - 50;
+            const angleAdjustment = this.priority === 'second' ? 1.571 : -1.571;
+            //const controlPointX = (srcPos.x + dstPos.x) / 2;
+            //const controlPointY = (srcPos.y + dstPos.y) / 2 - offset;
+            //const midX = (srcPos.x + dstPos.x) / 2;
+            //const midY = (srcPos.y + dstPos.y) / 2;
+    //
+            //const dirX = dstPos.x - controlPointX;
+            //const dirY = dstPos.y - controlPointY;
+            //const magnitude = Math.sqrt(dirX * dirX + dirY * dirY);
+            //const normDirX = dirX / magnitude;
+            //const normDirY = dirY / magnitude;
+    //
+            //const angleRadians = Math.atan2(normDirY, normDirX);
+    //
+            //const arrowHeadLength = this.arrowObject.pointerLength() + this.arrowObject.pointerWidth();
+            //const offsetX = Math.cos(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
+            //const offsetY = Math.sin(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
+    //
+            //const adjustedEndX = dstPos.x - offsetX;
+            //const adjustedEndY = dstPos.y - offsetY;
+
+            let xDestRelativeToSrc = dstPos.x - srcPos.x;
+            let yDestRelativeToSrc = dstPos.y - srcPos.y;
             const midX = (srcPos.x + dstPos.x) / 2;
             const midY = (srcPos.y + dstPos.y) / 2;
+
+            let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
+
+            let normDirX = xDestRelativeToSrc / magnitude;
+            let normDirY = yDestRelativeToSrc / magnitude;
+
+            let normVector = Math.atan2(normDirY, normDirX) + Math.PI/2;
+            let controlPointX = midX + 50 * Math.cos(normVector);
+            let controlPointY = midY + 50 * Math.sin(normVector);
+
+
     
-            const dirX = dstPos.x - controlPointX;
-            const dirY = dstPos.y - controlPointY;
-            const magnitude = Math.sqrt(dirX * dirX + dirY * dirY);
-            const normDirX = dirX / magnitude;
-            const normDirY = dirY / magnitude;
-    
-            const angleRadians = Math.atan2(normDirY, normDirX);
-    
-            const arrowHeadLength = this.arrowObject.pointerLength() + this.arrowObject.pointerWidth();
-            const offsetX = Math.cos(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
-            const offsetY = Math.sin(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
-    
-            const adjustedEndX = dstPos.x - offsetX;
-            const adjustedEndY = dstPos.y - offsetY;
-    
-            this.arrowObject.points([srcPos.x, srcPos.y, controlPointX, controlPointY, adjustedEndX, adjustedEndY]);
+            //this.arrowObject.points([srcPos.x, srcPos.y, controlPointX, controlPointY, adjustedEndX, adjustedEndY]);
+            this.arrowObject.points([srcPos.x, srcPos.y, controlPointX, controlPointY, dstPos.x, dstPos.y]);
             this.arrowObject.tension(0.5);
     
             this.labelObject.x(midX);
@@ -180,10 +205,10 @@ export default class TransitionWrapper extends SelectableObject {
             const oneMinusT = 1 - t;
             const bx = (oneMinusT * oneMinusT * srcPos.x) + 
                         (2 * oneMinusT * t * controlPointX) + 
-                        (t * t * adjustedEndX);
+                        (t * t * dstPos.x);
             const by = (oneMinusT * oneMinusT * srcPos.y) + 
                         (2 * oneMinusT * t * adjustedControlPointY) + 
-                        (t * t * adjustedEndY);
+                        (t * t * dstPos.y);
          
             this.labelCenterDebugObject.position({ x: bx, y: by });
         } else {
