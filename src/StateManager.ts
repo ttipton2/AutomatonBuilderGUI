@@ -176,18 +176,31 @@ export default class StateManager {
     }
 
     private static addStateAtDoubleClickPos(evt: Konva.KonvaEventObject<MouseEvent>) {
-        const x = evt.evt.pageX;
-        const y = evt.evt.pageY;
+        if (!StateManager._stage) return;
+    
+        const stage = StateManager._stage;
+        const pointerPosition = stage.getPointerPosition();
+        if (!pointerPosition) return;
+    
+        // Convert the pointer position to the stage's coordinate space
+        const scale = stage.scaleX();
+        const stagePos = stage.position();
+    
+        // Adjusting for the stage's position and scale
+        const x = (pointerPosition.x - stagePos.x) / scale;
+        const y = (pointerPosition.y - stagePos.y) / scale;
+    
         const newStateWrapper = new NodeWrapper(x, y);
-
         StateManager._nodeWrappers.push(newStateWrapper);
-
-        StateManager._nodeLayer.add(newStateWrapper.nodeGroup);
-
+        StateManager._nodeLayer?.add(newStateWrapper.nodeGroup);
+    
         if (StateManager._startNode === null) {
             StateManager.startNode = newStateWrapper;
         }
+    
+        StateManager._nodeLayer?.draw();
     }
+    
 
     public static addTransition(transition: TransitionWrapper) {
         console.log('Adding transition to the array');
