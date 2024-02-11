@@ -155,7 +155,7 @@ export default class TransitionWrapper extends SelectableObject {
         if (this.priority === 'curve') {
             console.log('Curved arrow logic executed!');
             const angle = Math.atan2(dstPos.y - srcPos.y,dstPos.x - srcPos.x);
-            const curveSize = 50;
+            const curveSize = 40;
             const textOffset = curveSize + 20;
             const midX = (srcPos.x + dstPos.x) / 2;
             const midY = (srcPos.y + dstPos.y) / 2;
@@ -163,12 +163,12 @@ export default class TransitionWrapper extends SelectableObject {
             const normalVectorYComponent = Math.sin(angle + Math.PI/2);
 
             let pointsArray = [
-                srcPos.x + NodeWrapper.NodeRadius*Math.cos(angle+Math.PI/6),
-                srcPos.y + NodeWrapper.NodeRadius*Math.sin(angle+Math.PI/6),
+                srcPos.x + NodeWrapper.NodeRadius*Math.cos(angle+Math.PI/8),
+                srcPos.y + NodeWrapper.NodeRadius*Math.sin(angle+Math.PI/8),
                 midX + curveSize * normalVectorXComponent,
                 midY + curveSize * normalVectorYComponent,
-                dstPos.x - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.cos(angle-Math.PI/6),
-                dstPos.y - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.sin(angle-Math.PI/6)
+                dstPos.x - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.cos(angle-Math.PI/8),
+                dstPos.y - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.sin(angle-Math.PI/8)
             ]
             this.arrowObject.points(pointsArray);
             this.arrowObject.tension(0.5);
