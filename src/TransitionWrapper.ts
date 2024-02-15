@@ -49,7 +49,14 @@ export default class TransitionWrapper extends SelectableObject {
             (t.sourceNode.id === destNode.id && t.destNode.id === sourceNode.id)
         );
 
-        this.priority = existingTransitions.length === 0 ? 'first' : 'second';
+        //this.priority = existingTransitions.length === 0 ? 'first' : 'second';
+        if(existingTransitions.length === 0){
+            this.priority = 'straight';
+        } else {
+            existingTransitions[0].priority = 'curve';
+            this.priority = 'curve';
+            existingTransitions[0].updatePoints();
+        }
 
         this.konvaGroup = new Konva.Group();
 
@@ -145,47 +152,31 @@ export default class TransitionWrapper extends SelectableObject {
         let srcPos = this._sourceNode.nodeGroup.position();
         let dstPos = this._destNode.nodeGroup.position();
 
-        if (this.priority === 'second') {
+        if (this.priority === 'curve') {
             console.log('Curved arrow logic executed!');
-            const controlPointX = (srcPos.x + dstPos.x) / 2;
-            const controlPointY = (srcPos.y + dstPos.y) / 2 - 50;
+            const angle = Math.atan2(dstPos.y - srcPos.y,dstPos.x - srcPos.x);
+            const curveSize = 40;
+            const textOffset = curveSize + 20;
             const midX = (srcPos.x + dstPos.x) / 2;
             const midY = (srcPos.y + dstPos.y) / 2;
-    
-            const dirX = dstPos.x - controlPointX;
-            const dirY = dstPos.y - controlPointY;
-            const magnitude = Math.sqrt(dirX * dirX + dirY * dirY);
-            const normDirX = dirX / magnitude;
-            const normDirY = dirY / magnitude;
-    
-            const angleRadians = Math.atan2(normDirY, normDirX);
-    
-            const arrowHeadLength = this.arrowObject.pointerLength() + this.arrowObject.pointerWidth();
-            const offsetX = Math.cos(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
-            const offsetY = Math.sin(angleRadians) * (NodeWrapper.NodeRadius + arrowHeadLength * 0.3);
-    
-            const adjustedEndX = dstPos.x - offsetX;
-            const adjustedEndY = dstPos.y - offsetY;
-    
-            this.arrowObject.points([srcPos.x, srcPos.y, controlPointX, controlPointY, adjustedEndX, adjustedEndY]);
+            const normalVectorXComponent = Math.cos(angle + Math.PI/2);//rotate 90 degrees
+            const normalVectorYComponent = Math.sin(angle + Math.PI/2);
+
+            let pointsArray = [
+                srcPos.x + NodeWrapper.NodeRadius*Math.cos(angle+Math.PI/8),
+                srcPos.y + NodeWrapper.NodeRadius*Math.sin(angle+Math.PI/8),
+                midX + curveSize * normalVectorXComponent,
+                midY + curveSize * normalVectorYComponent,
+                dstPos.x - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.cos(angle-Math.PI/8),
+                dstPos.y - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.sin(angle-Math.PI/8)
+            ]
+            this.arrowObject.points(pointsArray);
             this.arrowObject.tension(0.5);
     
-            this.labelObject.x(midX);
-            this.labelObject.y(midY - 25);
+            this.labelObject.x(midX + textOffset * normalVectorXComponent);
+            this.labelObject.y(midY + textOffset * normalVectorYComponent);
 
-            // Calculating the midpoint of the Bezier curve using adjusted Y value
-            const adjustmentValue = 43;
-            const adjustedControlPointY = controlPointY - adjustmentValue;
-            const t = 0.5;
-            const oneMinusT = 1 - t;
-            const bx = (oneMinusT * oneMinusT * srcPos.x) + 
-                        (2 * oneMinusT * t * controlPointX) + 
-                        (t * t * adjustedEndX);
-            const by = (oneMinusT * oneMinusT * srcPos.y) + 
-                        (2 * oneMinusT * t * adjustedControlPointY) + 
-                        (t * t * adjustedEndY);
-         
-            this.labelCenterDebugObject.position({ x: bx, y: by });
+            this.labelCenterDebugObject.position({ x: midX + curveSize * normalVectorXComponent, y: midY + curveSize * normalVectorYComponent });
         } else {
             let xDestRelativeToSrc = dstPos.x - srcPos.x;
             let yDestRelativeToSrc = dstPos.y - srcPos.y;
