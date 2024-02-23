@@ -113,99 +113,101 @@ export default class TransitionWrapper extends SelectableObject {
     public updatePoints() {
         this.resetLabel();
     
-        // If source node and destination node are the same,
-        // then the transition arrow should loop up and around
-        if (this._sourceNode == this._destNode) {
-            console.log('source node and dest node are the same!');
-            let srcPos = this._sourceNode.nodeGroup.position();
-            const ANGLE = 60.0 * (Math.PI / 180.0);
-            const DIST = 30;
-    
-            const centerPtX = srcPos.x;
-            const centerPtY = srcPos.y - NodeWrapper.NodeRadius - DIST * 1.5;
-    
-            let pointsArray = [
-                srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE),
-                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE),
-    
-                srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE) + DIST * Math.cos(ANGLE),
-                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
-    
-                centerPtX,
-                centerPtY,
-    
-                srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - DIST * Math.cos(ANGLE),
-                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
-    
-                srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.cos(ANGLE),
-                srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.sin(ANGLE)
-            ];
-            this.arrowObject.points(pointsArray);
-            this.arrowObject.tension(0); 
-    
-            this.labelObject.position({x: centerPtX, y: centerPtY});
-            this.labelCenterDebugObject.position({x: centerPtX, y: centerPtY});
-    
-            return;
-        }
-    
-        let srcPos = this._sourceNode.nodeGroup.position();
-        let dstPos = this._destNode.nodeGroup.position();
-
-        if (this.priority === 'curve') {
-            console.log('Curved arrow logic executed!');
-            const angle = Math.atan2(dstPos.y - srcPos.y,dstPos.x - srcPos.x);
-            const curveSize = 40;
-            const textOffset = curveSize + 20;
-            const midX = (srcPos.x + dstPos.x) / 2;
-            const midY = (srcPos.y + dstPos.y) / 2;
-            const normalVectorXComponent = Math.cos(angle + Math.PI/2);//rotate 90 degrees
-            const normalVectorYComponent = Math.sin(angle + Math.PI/2);
-
-            let pointsArray = [
-                srcPos.x + NodeWrapper.NodeRadius*Math.cos(angle+Math.PI/8),
-                srcPos.y + NodeWrapper.NodeRadius*Math.sin(angle+Math.PI/8),
-                midX + curveSize * normalVectorXComponent,
-                midY + curveSize * normalVectorYComponent,
-                dstPos.x - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.cos(angle-Math.PI/8),
-                dstPos.y - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding)*Math.sin(angle-Math.PI/8)
-            ]
-            this.arrowObject.points(pointsArray);
-            this.arrowObject.tension(0.5);
-    
-            this.labelObject.x(midX + textOffset * normalVectorXComponent);
-            this.labelObject.y(midY + textOffset * normalVectorYComponent);
-
-            this.labelCenterDebugObject.position({ x: midX + curveSize * normalVectorXComponent, y: midY + curveSize * normalVectorYComponent });
+        if (this._sourceNode === this._destNode) {
+            this.handleSameSourceAndDest();
         } else {
-            let xDestRelativeToSrc = dstPos.x - srcPos.x;
-            let yDestRelativeToSrc = dstPos.y - srcPos.y;
-    
-            let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
-    
-            let newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
-            let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
-            let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
-    
-            this.arrowObject.points([
-                srcPos.x,
-                srcPos.y,
-                dstPos.x - xUnitTowardsSrc,
-                dstPos.y - yUnitTowardsSrc
-            ]);
-    
-            this.arrowObject.tension(0);
-    
-            const xAvg = ((srcPos.x + xUnitTowardsSrc) + (dstPos.x - xUnitTowardsSrc)) / 2;
-            const yAvg = ((srcPos.y + yUnitTowardsSrc) + (dstPos.y - yUnitTowardsSrc)) / 2;
-    
-            const xCenter = xAvg;
-            const yCenter = yAvg;
-            this.labelObject.x(xCenter);
-            this.labelObject.y(yCenter);
-    
-            this.labelCenterDebugObject.position({x: xCenter, y: yCenter});
+            const srcPos = this._sourceNode.nodeGroup.position();
+            const dstPos = this._destNode.nodeGroup.position();
+            
+            if (this.priority === 'curve') {
+                this.handleCurvePriority(srcPos, dstPos);
+            } else {
+                this.handleDefaultPriority(srcPos, dstPos);
+            }
         }
+    }
+    
+    handleSameSourceAndDest() {
+        console.log('source node and dest node are the same!');
+        const srcPos = this._sourceNode.nodeGroup.position();
+        const ANGLE = 60.0 * (Math.PI / 180.0);
+        const DIST = 30;
+    
+        const centerPtX = srcPos.x;
+        const centerPtY = srcPos.y - NodeWrapper.NodeRadius - DIST * 1.5;
+    
+        const pointsArray = [
+            srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE),
+            srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE),
+            srcPos.x + NodeWrapper.NodeRadius * Math.cos(ANGLE) + DIST * Math.cos(ANGLE),
+            srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
+            centerPtX,
+            centerPtY,
+            srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - DIST * Math.cos(ANGLE),
+            srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - DIST * Math.sin(ANGLE),
+            srcPos.x - NodeWrapper.NodeRadius * Math.cos(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.cos(ANGLE),
+            srcPos.y - NodeWrapper.NodeRadius * Math.sin(ANGLE) - TransitionWrapper.ExtraTransitionArrowPadding * Math.sin(ANGLE)
+        ];
+    
+        this.updateArrow(pointsArray, 0);
+        this.updateLabelPosition(centerPtX, centerPtY - 20);
+    }
+    
+    handleCurvePriority(srcPos: { x: number, y: number }, dstPos: { x: number, y: number }) {
+        console.log('Curved arrow logic executed!');
+        const angle = Math.atan2(dstPos.y - srcPos.y, dstPos.x - srcPos.x);
+        const curveSize = 40;
+        const textOffset = curveSize + 20;
+        const midPoint = { x: (srcPos.x + dstPos.x) / 2, y: (srcPos.y + dstPos.y) / 2 };
+        const normalVectorXComponent = Math.cos(angle + Math.PI / 2);
+        const normalVectorYComponent = Math.sin(angle + Math.PI / 2);
+    
+        const pointsArray = [
+            srcPos.x + NodeWrapper.NodeRadius * Math.cos(angle + Math.PI / 8),
+            srcPos.y + NodeWrapper.NodeRadius * Math.sin(angle + Math.PI / 8),
+            midPoint.x + curveSize * normalVectorXComponent,
+            midPoint.y + curveSize * normalVectorYComponent,
+            dstPos.x - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding) * Math.cos(angle - Math.PI / 8),
+            dstPos.y - (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding) * Math.sin(angle - Math.PI / 8)
+        ];
+    
+        this.updateArrow(pointsArray, 0.5);
+        this.updateLabelPosition(midPoint.x + textOffset * normalVectorXComponent, midPoint.y + textOffset * normalVectorYComponent);
+        this.updateLabelCenterDebugPosition(midPoint.x + curveSize * normalVectorXComponent, midPoint.y + curveSize * normalVectorYComponent);
+    }
+    
+    handleDefaultPriority(srcPos: { x: number, y: number }, dstPos: { x: number, y: number }) {
+        const unitVector = this.calculateUnitVectorTowardsSrc(srcPos, dstPos);
+        const xAvg = ((srcPos.x + unitVector.x) + (dstPos.x - unitVector.x)) / 2;
+        const yAvg = ((srcPos.y + unitVector.y) + (dstPos.y - unitVector.y)) / 2;
+    
+        this.updateArrow([srcPos.x, srcPos.y, dstPos.x - unitVector.x, dstPos.y - unitVector.y], 0);
+        this.updateLabelPosition(xAvg, yAvg);
+        this.updateLabelCenterDebugPosition(xAvg, yAvg);
+    }
+    
+    calculateUnitVectorTowardsSrc(srcPos: { x: number, y: number }, dstPos: { x: number, y: number }) {
+        const xDestRelativeToSrc = dstPos.x - srcPos.x;
+        const yDestRelativeToSrc = dstPos.y - srcPos.y;
+        const magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
+        const newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
+        const xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
+        const yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
+    
+        return { x: xUnitTowardsSrc, y: yUnitTowardsSrc };
+    }
+    
+    updateArrow(pointsArray: number[], tension: number) {
+        this.arrowObject.points(pointsArray);
+        this.arrowObject.tension(tension);
+    }
+    
+    updateLabelPosition(x: number, y: number) {
+        this.labelObject.position({ x, y });
+    }
+    
+    updateLabelCenterDebugPosition(x: number, y: number) {
+        this.labelCenterDebugObject.position({ x, y });
     }
     
 
