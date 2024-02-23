@@ -8,6 +8,7 @@ import { ChangeEvent, ChangeEventHandler } from "react";
 import { LightColorScheme, DarkColorScheme, ColorScheme } from "./ColorSchemes";
 
 export default class StateManager {
+    static _nextStateId = 0;
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
     private static _startNode: NodeWrapper | null = null;
 
@@ -59,6 +60,7 @@ export default class StateManager {
         });
         this._stage.on('dblclick', (ev) => StateManager.onDoubleClick.call(this, ev));
         this._stage.on('click', (ev) => StateManager.onClick.call(this, ev));
+        this._stage.on('wheel', StateManager.handleWheelEvent);
 
         this._nodeLayer = new Konva.Layer();
         this._transitionLayer = new Konva.Layer();
@@ -94,11 +96,60 @@ export default class StateManager {
         });
         this._transitionLayer.add(this._startStateLine);
 
+        
         this._stage.add(this._transitionLayer);
         this._stage.add(this._nodeLayer);
-
+        StateManager.drawGrid();
         addEventListener('keydown', this.onKeyDown);
+        addEventListener('resize', this.handleResize);
     }
+    public static get transitions(): Array<TransitionWrapper> {
+        return StateManager._transitionWrappers;
+      }
+
+    //handles resizing the canvas when the window is resized using an event listener
+    private static handleResize() {
+        if (StateManager._stage) {
+            StateManager._stage.width(window.innerWidth);
+            StateManager._stage.height(window.innerHeight);
+
+            const gridLayer = StateManager._stage.findOne('.gridLayer');
+            if(gridLayer){
+                gridLayer.destroy() ;
+            }
+            StateManager.drawGrid();
+
+            StateManager._stage.draw();
+        }
+    }
+
+    public static drawGrid(){
+        const gridLayer = new Konva.Layer({name: 'gridLayer'});
+        const gridCellSize = 50;
+        const verticalLineNum = 80
+        const horizontalLineNum = 40
+
+        for(let i = 0; i < verticalLineNum; i++){
+            let line = new Konva.Line({
+                points: [i * gridCellSize, 0, i * gridCellSize,(horizontalLineNum-1)*gridCellSize],
+                stroke: 'lightgrey',
+                strokeWidth: 1,
+            });
+            gridLayer.add(line);
+        }
+
+        for(let j = 0; j < horizontalLineNum; j++){
+            let line = new Konva.Line({
+                points: [0, j * gridCellSize, (verticalLineNum-1)*gridCellSize, j * gridCellSize],
+                stroke: 'lightgrey',
+                strokeWidth: 1,
+            });
+            gridLayer.add(line);
+        }
+        StateManager._stage.add(gridLayer);
+        gridLayer.moveToBottom();
+    }
+    
 
     public static get currentTool() {
         return StateManager._currentTool;
@@ -125,18 +176,36 @@ export default class StateManager {
     }
 
     private static addStateAtDoubleClickPos(evt: Konva.KonvaEventObject<MouseEvent>) {
-        const x = evt.evt.pageX;
-        const y = evt.evt.pageY;
+        if (!StateManager._stage) return;
+    
+        const stage = StateManager._stage;
+        const pointerPosition = stage.getPointerPosition();
+        if (!pointerPosition) return;
+    
+        // Convert the pointer position to the stage's coordinate space
+        const scale = stage.scaleX();
+        const stagePos = stage.position();
+    
+        // Adjusting for the stage's position and scale
+        const x = (pointerPosition.x - stagePos.x) / scale;
+        const y = (pointerPosition.y - stagePos.y) / scale;
+    
         const newStateWrapper = new NodeWrapper(x, y);
-
         StateManager._nodeWrappers.push(newStateWrapper);
-
-        StateManager._nodeLayer.add(newStateWrapper.nodeGroup);
-
+        StateManager._nodeLayer?.add(newStateWrapper.nodeGroup);
+    
         if (StateManager._startNode === null) {
             StateManager.startNode = newStateWrapper;
         }
+    
+        StateManager._nodeLayer?.draw();
     }
+    
+
+    public static addTransition(transition: TransitionWrapper) {
+        console.log('Adding transition to the array');
+        StateManager._transitionWrappers.push(transition);
+      }
 
     public static set startNode(node: NodeWrapper | null) {
         if (StateManager._startNode) {
@@ -280,6 +349,29 @@ export default class StateManager {
         StateManager.setSelectedObjects([]);
         StateManager._selectedObjects = [];
     }
+
+    // method to zoom in or out when the mouse wheel is scrolled.
+    private static handleWheelEvent(ev: any) {
+        ev.evt.preventDefault();
+        var oldScale = StateManager._stage.scaleX();
+    
+        var pointer = StateManager._stage.getPointerPosition();
+    
+        var mousePointer = {
+            x: (pointer.x - StateManager._stage.x()) / oldScale,
+            y: (pointer.y - StateManager._stage.y()) / oldScale,
+        };
+    
+        var newScale = ev.evt.deltaY > 0 ? oldScale * 0.9 : oldScale * 1.1;
+        StateManager._stage.scale({ x: newScale, y: newScale });
+    
+        var newPos = {
+            x: pointer.x - mousePointer.x * newScale,
+            y: pointer.y - mousePointer.y * newScale,
+        };
+        StateManager._stage.position(newPos);
+        StateManager._stage.batchDraw();
+    }
     
     public static set alphabet(newAlphabet: Array<TokenWrapper>) {
         const oldAlphabet = StateManager._alphabet;
@@ -367,7 +459,7 @@ export default class StateManager {
             const isEpsilonTransition = trans.isEpsilonTransition;
             const tokens = trans.tokens.map(tokID => StateManager._alphabet.find(tok => tok.id === tokID));
             const newTrans = new TransitionWrapper(src, dest, isEpsilonTransition, tokens);
-
+            
             StateManager._transitionWrappers.push(newTrans);
             StateManager._transitionLayer.add(newTrans.konvaGroup);
         })
