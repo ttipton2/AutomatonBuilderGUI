@@ -9,6 +9,9 @@ import { LightColorScheme, DarkColorScheme, ColorScheme } from "./ColorSchemes";
 
 export default class StateManager {
     static _nextStateId = 0;
+
+    static _version = 0; // Represents changes in the state
+
     public static get startNode(): NodeWrapper | null { return StateManager._startNode; }
     private static _startNode: NodeWrapper | null = null;
 
@@ -123,6 +126,18 @@ export default class StateManager {
         }
     }
 
+
+    
+
+    public static get version() {
+        return this._version;
+    }
+
+    // Ensure to call this method whenever changes are made to nodes or transitions
+    public static notifyChange() {
+        this._version += 1;
+    }
+
     public static drawGrid(){
         const gridLayer = new Konva.Layer({name: 'gridLayer'});
         const gridCellSize = 50;
@@ -229,11 +244,22 @@ export default class StateManager {
         StateManager._startStateLine.absolutePosition(StateManager._startNode.nodeGroup.absolutePosition());
     }
 
+
+
     private static onKeyDown(ev: KeyboardEvent) {
-        if ((ev.code === "Backspace" || ev.code === "Delete") && ev.ctrlKey) {
+        //based on the ignore shortcuts implementation in index.tsx
+        const n = document.activeElement.nodeName;
+        if (n === 'INPUT' || n === 'TEXTAREA')
+        {
+            return;
+        }
+        if (ev.code === "Backspace" || ev.code === "Delete") 
+        {
             StateManager.deleteAllSelectedObjects();
         }
+
     }
+    
 
     public static startTentativeTransition(sourceNode: NodeWrapper) {
         StateManager._tentativeTransitionSource = sourceNode;
@@ -242,39 +268,33 @@ export default class StateManager {
     }
 
     public static updateTentativeTransitionHead(x: number, y: number) {
-        if (!StateManager._stage || !StateManager._tentativeTransitionSource || !StateManager._tentConnectionLine) return;
-    
-        // Get the current scale of the stage
-        const scale = StateManager._stage.scaleX();
-    
-        // Get the source node's absolute position
         let srcPos = StateManager._tentativeTransitionSource.nodeGroup.absolutePosition();
-    
         if (StateManager.tentativeTransitionTarget === null) {
-            // Calculate the delta, taking the scale into account
-            let xDelta = (x - srcPos.x) / scale;
-            let yDelta = (y - srcPos.y) / scale;
-    
-            // Update the points for the tentative transition line
+            let xDelta = x - srcPos.x;
+            let yDelta = y - srcPos.y;
             StateManager._tentConnectionLine.points([0, 0, xDelta, yDelta]);
-        } else {
-            
-            let dstPos = StateManager.tentativeTransitionTarget.nodeGroup.absolutePosition();
-            
-            let xDestRelativeToSrc = (dstPos.x - srcPos.x) / scale;
-            let yDestRelativeToSrc = (dstPos.y - srcPos.y) / scale;
-    
-            let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
-            
-            let newMag = (NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding);
-            let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
-            let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
-    
-            // Update the arrow points to end just before the target node, adjusted for scale
-            StateManager._tentConnectionLine.points([0, 0, xDestRelativeToSrc - xUnitTowardsSrc, yDestRelativeToSrc - yUnitTowardsSrc]);
+            return;
         }
+
+        // There's a node being targeted, so let's find the point the arrow
+        // should point to!
+        let dstPos = StateManager.tentativeTransitionTarget.nodeGroup.absolutePosition();
+
+        let xDestRelativeToSrc = dstPos.x - srcPos.x;
+        let yDestRelativeToSrc = dstPos.y - srcPos.y;
+
+        let magnitude = Math.sqrt(xDestRelativeToSrc * xDestRelativeToSrc + yDestRelativeToSrc * yDestRelativeToSrc);
+
+        let newMag = NodeWrapper.NodeRadius + TransitionWrapper.ExtraTransitionArrowPadding;
+        let xUnitTowardsSrc = xDestRelativeToSrc / magnitude * newMag;
+        let yUnitTowardsSrc = yDestRelativeToSrc / magnitude * newMag;
+
+        // Ok, now we have a vector relative to the destination.
+        // We need to get this vector relative to the source.
+
+        StateManager._tentConnectionLine.points([0, 0, xDestRelativeToSrc - xUnitTowardsSrc, yDestRelativeToSrc - yUnitTowardsSrc]);
     }
-    
+
     public static endTentativeTransition() {
         if (StateManager._tentativeTransitionSource !== null && StateManager.tentativeTransitionTarget !== null) {
             const newTransitionWrapper = new TransitionWrapper(StateManager._tentativeTransitionSource, StateManager._tentativeTransitionTarget);
@@ -509,6 +529,13 @@ export default class StateManager {
     public static get useDarkMode() {
         return this._useDarkMode;
     }
+
+    public static areAllLabelsUnique(): boolean {
+        const labels = StateManager._nodeWrappers.map(node => node.labelText);
+        const uniqueLabels = new Set(labels);
+        return labels.length === uniqueLabels.size;
+    }
+    
 }
 
 interface SerializedAutomaton {
