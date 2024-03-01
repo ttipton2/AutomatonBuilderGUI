@@ -230,9 +230,17 @@ export default class StateManager {
     }
 
     private static onKeyDown(ev: KeyboardEvent) {
-        if ((ev.code === "Backspace" || ev.code === "Delete") && ev.ctrlKey) {
+        //based on the ignore shortcuts implementation in index.tsx
+        const n = document.activeElement.nodeName;
+        if (n === 'INPUT' || n === 'TEXTAREA')
+        {
+            return;
+        }
+        if (ev.code === "Backspace" || ev.code === "Delete") 
+        {
             StateManager.deleteAllSelectedObjects();
         }
+
     }
 
     public static startTentativeTransition(sourceNode: NodeWrapper) {
