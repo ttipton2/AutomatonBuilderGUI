@@ -132,7 +132,7 @@ export default class StateManager {
         for(let i = 0; i < verticalLineNum; i++){
             let line = new Konva.Line({
                 points: [i * gridCellSize, 0, i * gridCellSize,(horizontalLineNum-1)*gridCellSize],
-                stroke: 'lightgrey',
+                stroke: 'grey',
                 strokeWidth: 1,
             });
             gridLayer.add(line);
@@ -141,7 +141,7 @@ export default class StateManager {
         for(let j = 0; j < horizontalLineNum; j++){
             let line = new Konva.Line({
                 points: [0, j * gridCellSize, (verticalLineNum-1)*gridCellSize, j * gridCellSize],
-                stroke: 'lightgrey',
+                stroke: 'grey',
                 strokeWidth: 1,
             });
             gridLayer.add(line);
