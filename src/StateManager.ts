@@ -346,12 +346,11 @@ export default class StateManager {
                 }
             });
         });
-
         // Keep transitions that aren't in the selected objects, AND aren't dependent on selected objects
-        StateManager._transitionWrappers = StateManager._transitionWrappers.filter((i) => StateManager._selectedObjects.includes(i) && !transitionsDependentOnDeletedNodes.includes(i));
+        StateManager._transitionWrappers = StateManager._transitionWrappers.filter((i) => !StateManager._selectedObjects.includes(i) && !transitionsDependentOnDeletedNodes.includes(i));
 
         // Next, delete all selected nodes
-        StateManager._nodeWrappers = StateManager._nodeWrappers.filter((i) => StateManager._selectedObjects.includes(i));
+        StateManager._nodeWrappers = StateManager._nodeWrappers.filter((i) => !StateManager._selectedObjects.includes(i));
 
         StateManager._selectedObjects.forEach((obj) => obj.deleteKonvaObjects());
         transitionsDependentOnDeletedNodes.forEach((obj) => obj.deleteKonvaObjects());
