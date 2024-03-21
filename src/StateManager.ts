@@ -385,6 +385,13 @@ export default class StateManager {
         StateManager._stage.position(newPos);
         StateManager._stage.batchDraw();
     }
+
+    public static areAllLabelsUnique(): boolean {
+        const labels = StateManager._nodeWrappers.map(node => node.labelText);
+        const uniqueLabels = new Set(labels);
+        return labels.length === uniqueLabels.size;
+    }
+
     
     public static set alphabet(newAlphabet: Array<TokenWrapper>) {
         const oldAlphabet = StateManager._alphabet;
