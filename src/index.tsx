@@ -58,10 +58,14 @@ function App() {
         StateManager.startNode = startNode;
     }, [startNode]);
 
+
+    const emptyStringToken = StateManager.alphabet.some(token => token.symbol.trim() === '');
+
     useEffect(() => {
         const unique = StateManager.areAllLabelsUnique();
         setIsLabelUnique(unique);
     }, [selectedObjects]);
+
 
 
     // Config window
@@ -93,6 +97,12 @@ function App() {
         {!isLabelUnique && (
             <InformationBox infoBoxType={InformationBoxType.Error}>
                 Duplicate state labels detected. Each state must have a unique label.
+            </InformationBox>
+        )}
+
+        {emptyStringToken && (
+            <InformationBox infoBoxType={InformationBoxType.Error}>
+                Invalid token: Empty string detected.
             </InformationBox>
         )}
 
