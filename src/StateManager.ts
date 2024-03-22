@@ -28,6 +28,7 @@ export default class StateManager {
     private static _startStateLine: Konva.Arrow | null = null;
     private static _nodeLayer: Konva.Layer | null = null;
     private static _transitionLayer: Konva.Layer | null = null;
+    private static _gridLayer: Konva.Layer | null = null;
 
     public static setSelectedObjects: React.Dispatch<React.SetStateAction<SelectableObject[]>> | null = null;
 
@@ -61,9 +62,13 @@ export default class StateManager {
         this._stage.on('dblclick', (ev) => StateManager.onDoubleClick.call(this, ev));
         this._stage.on('click', (ev) => StateManager.onClick.call(this, ev));
         this._stage.on('wheel', StateManager.handleWheelEvent);
+        this._stage.on('dragmove', StateManager.onDragMove);
 
         this._nodeLayer = new Konva.Layer();
         this._transitionLayer = new Konva.Layer();
+        this._gridLayer = new Konva.Layer();
+        this._stage.add(this._gridLayer);
+        this.drawGrid(); // Draw the initial grid
 
         this._tentConnectionLine = new Konva.Arrow({
             x: 0,
@@ -99,7 +104,7 @@ export default class StateManager {
         
         this._stage.add(this._transitionLayer);
         this._stage.add(this._nodeLayer);
-        StateManager.drawGrid();
+        
         addEventListener('keydown', this.onKeyDown);
         addEventListener('resize', this.handleResize);
     }
@@ -123,32 +128,56 @@ export default class StateManager {
         }
     }
 
-    public static drawGrid(){
-        const gridLayer = new Konva.Layer({name: 'gridLayer'});
-        const gridCellSize = 50;
-        const verticalLineNum = 80
-        const horizontalLineNum = 40
-
-        for(let i = 0; i < verticalLineNum; i++){
-            let line = new Konva.Line({
-                points: [i * gridCellSize, 0, i * gridCellSize,(horizontalLineNum-1)*gridCellSize],
+    public static drawGrid() {
+        if (!StateManager._gridLayer || !StateManager._stage) {
+            console.error('Grid layer or stage is not initialized.');
+            return;
+        }
+    
+        // Clear any previous grid lines
+        StateManager._gridLayer.destroyChildren();
+    
+        const gridCellSize = 50; // Size of each cell in the grid
+        const scale = StateManager._stage.scaleX(); // Current scale of the stage
+        const stageWidth = StateManager._stage.width() / scale; // Visible width
+        const stageHeight = StateManager._stage.height() / scale; // Visible height
+        const stagePos = StateManager._stage.position(); // Current position of the stage
+    
+        // Adjust the start positions to account for stage position
+        const startX = -1 * (Math.round(stagePos.x / scale / gridCellSize) * gridCellSize);
+        const startY = -1 * (Math.round(stagePos.y / scale / gridCellSize) * gridCellSize);
+    
+        // Calculate the number of lines needed based on the stage size and scale
+        const linesX = Math.ceil(stageWidth / gridCellSize) + 2; // Extra lines to fill the space during drag
+        const linesY = Math.ceil(stageHeight / gridCellSize) + 2; // Extra lines to fill the space during drag
+    
+        // Create vertical lines
+        for (let i = 0; i < linesX; i++) {
+            let posX = startX + i * gridCellSize;
+            StateManager._gridLayer.add(new Konva.Line({
+                points: [posX, startY, posX, startY + linesY * gridCellSize],
                 stroke: this.colorScheme.gridColor,
                 strokeWidth: 1,
-            });
-            gridLayer.add(line);
+                listening: false,
+            }));
         }
-
-        for(let j = 0; j < horizontalLineNum; j++){
-            let line = new Konva.Line({
-                points: [0, j * gridCellSize, (verticalLineNum-1)*gridCellSize, j * gridCellSize],
+    
+        // Create horizontal lines
+        for (let j = 0; j < linesY; j++) {
+            let posY = startY + j * gridCellSize;
+            StateManager._gridLayer.add(new Konva.Line({
+                points: [startX, posY, startX + linesX * gridCellSize, posY],
                 stroke: this.colorScheme.gridColor,
                 strokeWidth: 1,
-            });
-            gridLayer.add(line);
+                listening: false,
+            }));
         }
-        StateManager._stage.add(gridLayer);
-        gridLayer.moveToBottom();
+    
+        // Draw the grid
+        StateManager._gridLayer.batchDraw();
     }
+    
+    
     
 
     public static get currentTool() {
@@ -158,6 +187,13 @@ export default class StateManager {
     public static set currentTool(tool: Tool) {
         StateManager._currentTool = tool;
     }
+
+    private static onDragMove(evt: Konva.KonvaEventObject<MouseEvent>) {
+        console.log('Stage is being dragged. Redrawing grid.'); // This line logs to the console
+        StateManager.drawGrid();
+    }
+    
+    
 
     private static onClick(evt: Konva.KonvaEventObject<MouseEvent>) {
         let thingUnderMouse = StateManager._stage.getIntersection(StateManager._stage.getPointerPosition());
@@ -384,7 +420,15 @@ export default class StateManager {
         };
         StateManager._stage.position(newPos);
         StateManager._stage.batchDraw();
+        StateManager.drawGrid();
     }
+
+    public static areAllLabelsUnique(): boolean {
+        const labels = StateManager._nodeWrappers.map(node => node.labelText);
+        const uniqueLabels = new Set(labels);
+        return labels.length === uniqueLabels.size;
+    }
+
     
     public static set alphabet(newAlphabet: Array<TokenWrapper>) {
         const oldAlphabet = StateManager._alphabet;
