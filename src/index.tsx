@@ -17,7 +17,7 @@ function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
     const [selectedObjects, setSelectedObjects] = useState(new Array<SelectableObject>());
     const [startNode, setStartNode] = useState(StateManager.startNode);
-
+  
     // Switch current tool when keys pressed
     useEffect(() => {
         StateManager.setSelectedObjects = setSelectedObjects;
@@ -57,6 +57,8 @@ function App() {
         StateManager.startNode = startNode;
     }, [startNode]);
 
+    const emptyStringToken = StateManager.alphabet.some(token => token.symbol.trim() === '');
+
 
     // Config window
     const [configWindowOpen, setConfigWindowOpen] = useState(false);
@@ -84,6 +86,12 @@ function App() {
             startNode={startNode}
             setStartNode={setStartNode}
         />
+
+        {emptyStringToken && (
+            <InformationBox infoBoxType={InformationBoxType.Error}>
+                Invalid token: Empty string detected.
+            </InformationBox>
+        )}
 
         {/* Some example error message boxes */}
         <InformationBox infoBoxType={InformationBoxType.Error}>
