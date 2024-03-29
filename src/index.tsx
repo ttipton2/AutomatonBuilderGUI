@@ -19,6 +19,19 @@ function App() {
     const [startNode, setStartNode] = useState(StateManager.startNode);
     const [isLabelUnique, setIsLabelUnique] = useState(true);
 
+    //Solution from this stackoverflow page: https://stackoverflow.com/questions/9626059/window-onbeforeunload-in-chrome-what-is-the-most-recent-fix
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+          e.preventDefault();
+          //using on chrome may require return value to be set
+        };
+    
+        window.addEventListener('beforeunload', handleBeforeUnload);
+    
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+      }, []);
+
+
     // Switch current tool when keys pressed
     useEffect(() => {
         StateManager.setSelectedObjects = setSelectedObjects;
