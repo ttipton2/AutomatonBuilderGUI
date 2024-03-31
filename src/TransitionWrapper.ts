@@ -7,6 +7,7 @@ import TokenWrapper from "./TokenWrapper";
 import { v4 as uuidv4 } from 'uuid';
 
 export default class TransitionWrapper extends SelectableObject {
+   
     public static readonly ExtraTransitionArrowPadding = 5;
 
     private static readonly SelectedArrowColor = 'red';
