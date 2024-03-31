@@ -4,6 +4,7 @@ import { Tool } from './Tool';
 import { Vector2d } from 'konva/lib/types';
 import SelectableObject from './SelectableObject';
 import { v4 as uuidv4 } from 'uuid';
+import TransitionWrapper from './TransitionWrapper';
 
 export default class NodeWrapper extends SelectableObject {
   public static readonly NodeRadius = 30;
@@ -279,7 +280,15 @@ export default class NodeWrapper extends SelectableObject {
             x: snappedX,
             y: snappedY
         });
+        
         StateManager.updateStartNodePosition();
+
+        // update all related transitions
+        StateManager.transitions.forEach(transition => {
+          if (transition.involvesNode(this)) {
+            transition.updatePoints();
+          }
+        });
         // Redraw the layer to reflect the changes
         this.nodeGroup.getLayer()?.batchDraw();
         
