@@ -73,11 +73,32 @@ export function testStringOnAutomata(testString: string): string {
     );
 
     console.log(myDFA);
+    
+// let runner = new DFARunner(myDFA, testString.split(''));
+
+console.log('Testing string:', testString);
+/*
+// Iterate over each character in the test string
+for (let i = 0; i < testString.length; i++) {
+    // Process the current character
+    runner.runStep();
+    
+    // Log the current state of the runner
+    console.log(`After processing '${testString[i]}':`, runner.getStatus());
+}
+
+// After running through all characters, check the final status
+let result = runner.getStatus();
+
+// Log the final status of the DFA runner
+console.log('Final status:', result);
+*/
 
     let runner = new DFARunner(myDFA, testString.split(''));
     runner.runUntilConclusion();
     let result = runner.getStatus();
     console.log('Testing string:', testString);
+
     switch (result) {
         case DFARunnerStatus.NotStarted:
             console.log('Result: Not Started');
