@@ -3,7 +3,7 @@ import ToolButton from './ToolButton';
 import StateManager from '../StateManager';
 import * as React from 'react';
 const { useRef } = React;
-import { BsArrowRight, BsCursor, BsCursorFill, BsDownload, BsNodePlus, BsNodePlusFill, BsPlusCircle, BsPlusCircleFill, BsUpload } from 'react-icons/bs';
+import { BsArrowRight, BsCursor, BsCursorFill, BsDownload, BsNodePlus, BsNodePlusFill, BsPlusCircle, BsPlusCircleFill, BsUpload, BsZoomIn, BsZoomOut } from 'react-icons/bs';
 import { TbZoomReset } from "react-icons/tb";
 import { BiReset } from "react-icons/bi";
 interface ToolboxProps {
@@ -56,6 +56,18 @@ export default function Toolbox(props: React.PropsWithChildren<ToolboxProps>) {
             <button className='rounded-full p-2 m-1 mx-2 block bg-green-500 text-white text-center' onClick={StateManager.centerStage} title="Center Stage">
                 <div className='flex flex-row items-center justify-center'>
                     <BiReset />
+                </div>
+            </button>
+            {/* Zoom In Button */}
+            <button className='rounded-full p-2 m-1 mx-2 block bg-blue-500 text-white text-center' onClick={StateManager.zoomIn} title="Zoom In">
+                <div className='flex flex-row items-center justify-center'>
+                    <BsZoomIn />
+                </div>
+            </button>
+            {/* Zoom Out Button */}
+            <button className='rounded-full p-2 m-1 mx-2 block bg-blue-500 text-white text-center' onClick={StateManager.zoomOut} title="Zoom Out">
+                <div className='flex flex-row items-center justify-center'>
+                    <BsZoomOut />
                 </div>
             </button>
         </div>

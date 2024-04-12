@@ -469,8 +469,6 @@ export default class StateManager {
         StateManager.drawGrid();
     }
     
-    
-    
     // method to re-center the stage
     public static centerStage() {
         if (!StateManager._stage) {
@@ -484,6 +482,43 @@ export default class StateManager {
         StateManager.drawGrid();
         StateManager._stage.batchDraw();
     }
+
+    // methods to zoom in and out by 10% (can adjust scale later if necessary)
+    public static zoomIn() {
+        if (!StateManager._stage) {
+            console.error('Stage is not initialized.');
+            return;
+        }
+        const scaleBy = 1.1;  // Increase scale by 10%
+        StateManager.applyZoom(scaleBy);
+    }
+    
+    public static zoomOut() {
+        if (!StateManager._stage) {
+            console.error('Stage is not initialized.');
+            return;
+        }
+        const scaleBy = 0.9;  // Decrease scale by 10%
+        StateManager.applyZoom(scaleBy);
+    }
+    
+    // method to apply the zoom feature when buttons are pressed
+    private static applyZoom(scaleBy: number) {
+        const oldScale = StateManager._stage.scaleX();
+        const newScale = oldScale * scaleBy;
+        StateManager._stage.scale({ x: newScale, y: newScale });
+    
+        const stageCenterX = StateManager._stage.width() / 2;
+        const stageCenterY = StateManager._stage.height() / 2;
+        const newPos = {
+            x: stageCenterX - (stageCenterX - StateManager._stage.x()) * scaleBy,
+            y: stageCenterY - (stageCenterY - StateManager._stage.y()) * scaleBy
+        };
+        StateManager._stage.position(newPos);
+        StateManager._stage.batchDraw();
+        StateManager.drawGrid();
+    }
+    
     
 
     public static areAllLabelsUnique(): boolean {
