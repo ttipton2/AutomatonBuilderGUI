@@ -457,6 +457,34 @@ export default class StateManager {
         StateManager._stage.batchDraw();
         StateManager.drawGrid();
     }
+    // method to reset the zoom scale to 100%
+    public static resetZoom() {
+        if (!StateManager._stage) {
+            console.error('Stage is not initialized.');
+            return;
+        }
+        StateManager._stage.scale({ x: 1, y: 1 });
+        StateManager._stage.position({ x: 0, y: 0 });
+        StateManager._stage.batchDraw();
+        StateManager.drawGrid();
+    }
+    
+    
+    
+    // method to re-center the stage
+    public static centerStage() {
+        if (!StateManager._stage) {
+            console.error('Stage is not initialized.');
+            return;
+        }
+        // Calculate the center based on the container dimensions
+        const x = (window.innerWidth / 2) - (StateManager._stage.width() / 2 * StateManager._stage.scaleX());
+        const y = (window.innerHeight / 2) - (StateManager._stage.height() / 2 * StateManager._stage.scaleY());
+        StateManager._stage.position({ x, y });
+        StateManager.drawGrid();
+        StateManager._stage.batchDraw();
+    }
+    
 
     public static areAllLabelsUnique(): boolean {
         const labels = StateManager._nodeWrappers.map(node => node.labelText);
