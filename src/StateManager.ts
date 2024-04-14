@@ -4,8 +4,12 @@ import Konva from "konva";
 import TransitionWrapper from "./TransitionWrapper";
 import SelectableObject from "./SelectableObject";
 import TokenWrapper from "./TokenWrapper";
-import { ChangeEvent, ChangeEventHandler } from "react";
-import { LightColorScheme, DarkColorScheme, ColorScheme } from "./ColorSchemes";
+import { ChangeEvent } from "react";
+import { LightColorScheme, DarkColorScheme } from "./ColorSchemes";
+
+// Dynamic import for Konva
+//let Konva: typeof import('konva') | null = null;
+
 
 export default class StateManager {
     static _nextStateId = 0;
@@ -35,6 +39,14 @@ export default class StateManager {
     private static _useDarkMode: boolean = false;
     private static _snapToGridEnabled: boolean = false;
 
+/*    static async loadKonva() {
+        if (!Konva) {
+            const module = await import('konva');
+            Konva = module.default;
+        }
+        return Konva;
+    }
+*/
     public static get colorScheme() {
         if (this._useDarkMode) {
             return DarkColorScheme;
@@ -55,7 +67,9 @@ export default class StateManager {
         return StateManager._snapToGridEnabled;
     }
 
-    public static initialize() {
+    public static async initialize() {
+        // Ensure Konva is loaded before initializing anything that depends on it
+       // await StateManager.loadKonva(); {
         this._startNode = null;
         this._nodeWrappers = [];
         this._transitionWrappers = [];
