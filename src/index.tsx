@@ -12,6 +12,8 @@ import ConfigureAutomatonWindow from './components/ConfigureAutomatonWindow';
 import { BsGearFill, BsMoonFill, BsCheck2Circle } from 'react-icons/bs';
 import TestStringWindow from './components/TestStringWindow';
 import InformationBox, { InformationBoxType } from './components/InformationBox';
+import { testStringOnAutomata } from './components/TestStringOnAutomata';
+import {  } from './components/TestStringWindow';
 
 function App() {
     const [currentTool, setCurrentTool] = useState(Tool.States);
@@ -72,6 +74,7 @@ function App() {
     }, [startNode]);
 
     const emptyStringToken = StateManager.alphabet.some(token => token.symbol.trim() === '');
+    const isAutomatonValid = 
 
     useEffect(() => {
         const unique = StateManager.areAllLabelsUnique();
@@ -99,16 +102,6 @@ function App() {
                             startNode={startNode}
                             setStartNode={setStartNode}
                         />
-                        {!isLabelUnique && (
-                            <InformationBox infoBoxType={InformationBoxType.Error}>
-                                Duplicate state labels detected. Each state must have a unique label.
-                            </InformationBox>
-                        )}
-                        {emptyStringToken && (
-                            <InformationBox infoBoxType={InformationBoxType.Error}>
-                                Invalid token: Empty string detected.
-                            </InformationBox>
-                        )}
 
                         {/* Example error message boxes commented out */}
                         {/*
@@ -136,7 +129,17 @@ function App() {
                         */}
 
                         <TestStringWindow />
-
+                        {!isLabelUnique && (
+                            <InformationBox infoBoxType={InformationBoxType.Error}>
+                                Duplicate state labels detected. Each state must have a unique label.
+                            </InformationBox>
+                        )}
+                        {emptyStringToken && (
+                            <InformationBox infoBoxType={InformationBoxType.Error}>
+                                Invalid token: Empty string detected.
+                            </InformationBox>
+                        )}
+                        
                         <div className="flex flex-col items-center mt-4">
                             <button
                                 className="rounded-full p-2 m-1 mx-2 block bg-amber-500 text-white text-center"
