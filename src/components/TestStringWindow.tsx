@@ -16,6 +16,7 @@ export default function TestStringWindow() {
         'Invalid DFA',
         'Invalid Input Tokens',
         'Empty string not allowed',
+        'Rejected',
     ];
 
     const handleTestString = () => {
