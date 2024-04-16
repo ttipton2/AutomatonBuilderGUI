@@ -1,8 +1,9 @@
-import { BsXCircleFill, BsExclamationTriangleFill, BsEyeFill, BsInfoCircleFill, BsChevronRight } from 'react-icons/bs';
+import { BsXCircleFill, BsExclamationTriangleFill, BsEyeFill, BsInfoCircleFill, BsChevronRight, BsCheckCircle } from 'react-icons/bs';
 
 export enum InformationBoxType {
     Warning,
-    Error
+    Error,
+    Success
 }
 
 interface InformationBoxProps {
@@ -57,6 +58,24 @@ function WarningBox(props: React.PropsWithChildren) {
     );
 }
 
+function SuccessBox(props: React.PropsWithChildren) {
+    return (
+        <>
+            <div className={`bg-green-100 dark:bg-green-900 border-2 border-green-500 rounded-lg mb-2`}>
+                <div className='flex flex-row text-left items-center place-content-start p-2'>
+                    <BsCheckCircle className='shrink-0 grow-0 mr-2 text-green-500 text-lg' />
+                    <div>
+                        {props.children}
+                    </div>
+                    {/* Use for indicating that there is more detail available -
+                    not necessary at this stage */}
+                    {/* <BsChevronRight className='shrink-0 ml-auto' /> */}
+                </div>
+            </div>
+        </>
+    );
+}
+
 export default function InformationBox(props: React.PropsWithChildren<InformationBoxProps>) {
     switch (props.infoBoxType) {
         case InformationBoxType.Warning:
@@ -76,6 +95,15 @@ export default function InformationBox(props: React.PropsWithChildren<Informatio
                         <AdditionalInfoButton />
                     </div> */}
                 </ErrorBox>
+            );
+        case InformationBoxType.Success:
+            return (
+                <SuccessBox>
+                    <div>{props.children}</div>
+                    {/* <div>
+                        <AdditionalInfoButton />
+                    </div> */}
+                </SuccessBox>
             );
     }
 
